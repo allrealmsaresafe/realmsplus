@@ -1,32 +1,43 @@
-# Prerequisites
-*.d
+# Packages
+node_modules/
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Log files
+logs/
+*.log
+npm-debug.log*
 
-# Precompiled Headers
-*.gch
-*.pch
+# Runtime data
+pids
+*.pid
+*.seed
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# Env
+.env
 
-# Fortran module files
-*.mod
-*.smod
+# Dist
+dist/
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+# Miscellaneous
+.tmp/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+.turbo
+tsconfig.tsbuildinfo
+coverage/
+out/
 
-# Executables
-*.exe
-*.out
-*.app
+# yarn
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Cache
+.prettiercache
+.eslintcache
