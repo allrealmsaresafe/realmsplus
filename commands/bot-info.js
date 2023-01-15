@@ -13,10 +13,47 @@ module.exports = {
               newUser = await userDB.create({userID: interaction.user.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
-			const infoEmbed = new EmbedBuilder()
-			.setColor('0e7122')
-			.setTitle(`Information about RealmDB`)
-			.setDescription(`**${guildList}**`)
+			const infoEmbed = {
+			color: 946466,
+			title: 'Information about RealmDB',
+			fields: [
+			  {
+				name: 'Server Count',
+				value: `${interaction.client.guilds.cache.size}`,
+				inline: true,
+			  },
+			  {
+				name: 'User Count',
+				value: `${interaction.client.users.cache.size}`,
+				inline: true,
+			  },
+			  {
+				name: 'Developers',
+				value: `Point`,
+				inline: true,
+			  },
+			  {
+				name: 'Version',
+				value: `${process.env.VERSION}`,
+				inline: true,
+			  },
+			  {
+				name: 'Ping',
+				value: `${Math.round(client.ws.ping)}`,
+				inline: true,
+			  },
+			  {
+				name: 'Birthday',
+				value: `January 4th, 2023`,
+				inline: true,
+			  },
+			],
+			timestamp: new Date().toISOString(),
+			footer: {
+			  text: `${process.env.FOOTER}`,
+			  icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+			},
+		  };
 		return interaction.reply({ embeds: [infoEmbed] });
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
