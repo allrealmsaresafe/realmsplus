@@ -23,23 +23,18 @@ module.exports = {
 				inline: true,
 			  },
 			  {
-				name: 'User Count',
-				value: `${interaction.client.users.cache.size}`,
-				inline: true,
-			  },
-			  {
 				name: 'Developers',
-				value: `Point`,
+				value: `[Point](https://github.com/PointTheDeveloper)`,
 				inline: true,
 			  },
 			  {
 				name: 'Version',
-				value: `${process.env.VERSION}`,
+				value: `v${process.env.VERSION}`,
 				inline: true,
 			  },
 			  {
 				name: 'Ping',
-				value: `${Math.round(client.ws.ping)}`,
+				value: `${Math.floor(interaction.client.ws.ping)}`,
 				inline: true,
 			  },
 			  {
