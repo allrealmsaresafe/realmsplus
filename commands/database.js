@@ -384,8 +384,8 @@ module.exports = {
                 if (!hackerData) return interaction.reply({ content: `This user isn't in the database!`, ephemeral: true })
               const removeLog = {
                   color: 946466,
-                  title: 'New report to the Database',
-                  description: 'Someone reported to the RealmDB Database.',
+                  title: 'Player removed from the database',
+                  description: `${interaction.user.tag} removed a player from the RealmDB Hacker Database.`,
                   fields: [
                     {
                       name: 'Author ID',
@@ -409,7 +409,7 @@ module.exports = {
                     },
                     {
                       name: 'Discord ID',
-                      value: `${hackerData.discordid}`,
+                      value: `${hackerData.discord}`,
                       inline: true,
                     },
                     {
