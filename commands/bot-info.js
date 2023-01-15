@@ -14,7 +14,7 @@ module.exports = {
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
 
-return interaction.reply({ embeds: [exampleEmbed] });
+		return interaction.reply({ embeds: [infoEmbed] });
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
 		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Bot Information Command has an error**\nError: **${error}**\n\`\`\` \`\`\``)
