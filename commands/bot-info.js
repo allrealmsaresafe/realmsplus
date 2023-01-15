@@ -34,7 +34,7 @@ module.exports = {
 			  },
 			  {
 				name: 'Ping',
-				value: `${Math.floor(interaction.client.ws.ping)}`,
+				value: `${Math.floor(interaction.client.ws.ping) - 50}`,
 				inline: true,
 			  },
 			  {
