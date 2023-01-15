@@ -13,7 +13,10 @@ module.exports = {
               newUser = await userDB.create({userID: interaction.user.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
-
+			const infoEmbed = new EmbedBuilder()
+			.setColor('0e7122')
+			.setTitle(`Information about RealmDB`)
+			.setDescription(`**${guildList}**`)
 		return interaction.reply({ embeds: [infoEmbed] });
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
