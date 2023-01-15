@@ -4,7 +4,8 @@ const path = require('node:path');
 require('dotenv').config()
 const token = process.env.TOKEN
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent] });
-
+const mongoose = require('mongoose')
+const userDB = require('./models/userDB')
 const eventsPath = path.join(__dirname, './events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
@@ -31,6 +32,12 @@ for (const file of commandFiles) {
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
+	let userData = await userDB.findOne({ userID: interaction.user.id })
+	if (!userData) {
+	  newUser = await userDB.create({userID: interaction.user.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+	  userData = await userDB.findOne({ userID: interaction.user.id })
+	}
+	if (userData.botBan) return interaction.reply({ content: `Uh oh! You are banned from using RealmDB!`, ephemeral: true })
 	const command = client.commands.get(interaction.commandName);
 
 	if (!command) return;

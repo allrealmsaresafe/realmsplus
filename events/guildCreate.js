@@ -1,10 +1,12 @@
 const { Events } = require('discord.js');
 const userDB = require('../models/userDB')
 const serverDB = require('../models/serverDB')
+const mongoose = require('mongoose')
 module.exports = {
 	name: Events.GuildCreate,
 	once: false,
 	async execute(guild) {
+    if (mongoose.connection.readyState != 1) return
     const id = await guild.client.channels.fetch(`1060345116000268428`)
     let userData = await userDB.findOne({ userID: guild.ownerId })
     if (!userData) {
@@ -39,7 +41,7 @@ module.exports = {
         ],
         timestamp: new Date().toISOString(),
         footer: {
-          text: 'RealmDB; The best database of hackers on MCBE.',
+          text: `${process.env.FOOTER}`,
           icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
         },
       };
@@ -57,7 +59,7 @@ module.exports = {
       description: 'Please run `/help` if you need help!\nPlease make sure to also join our Support Server:\nhttps://discord.gg/Q2ndaxNqVy',
       timestamp: new Date().toISOString(),
       footer: {
-        text: 'RealmDB; The best database of hackers on MCBE.',
+        text: `${process.env.FOOTER}`,
         icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
       },
     };
@@ -69,7 +71,7 @@ module.exports = {
       description: `I was just invited to **${guild.name}** <t:${Math.trunc(Date.now() / 1000)}:R>! The owner of the server is **<@${guild.ownerId}>** and their id is **${guild.ownerId}**!`,
       timestamp: new Date().toISOString(),
       footer: {
-        text: 'RealmDB; The best database of hackers on MCBE.',
+        text: `${process.env.FOOTER}`,
         icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
       },
     };

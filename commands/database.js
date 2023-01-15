@@ -1,8 +1,10 @@
-const { SlashCommandBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle, Events } = require('discord.js');
+const { ActivityType, SlashCommandBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle, Events } = require('discord.js');
 const crypto = require("crypto");
 const userDB = require('../models/userDB')
 const serverDB = require('../models/serverDB')
 const mongoose = require('mongoose')
+const hackerDB = require('../models/hackerDB')
+const commandCooldown = new Set();
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('database')
@@ -26,6 +28,10 @@ module.exports = {
                                 .addStringOption(option => option.setName('dbid').setDescription('The player\'s Database ID.').setRequired(true))),
 	async execute(interaction) {
 		try {
+      if (mongoose.connection.readyState != 1) return
+      if (commandCooldown.has(interaction.user.id)) {
+            return interaction.reply({content: `You can only run this command every 2 minutes!`, ephemeral: true});
+            } else {
             const id = interaction.client.channels.cache.get(`1060345095347523644`)
             let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
@@ -135,7 +141,7 @@ module.exports = {
                 ],
                 timestamp: new Date().toISOString(),
                 footer: {
-                  text: 'RealmDB; The best database of hackers on MCBE.',
+                  text: `${process.env.FOOTER}`,
                   icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                 },
               };
@@ -187,31 +193,27 @@ module.exports = {
                 ],
                 timestamp: new Date().toISOString(),
                 footer: {
-                  text: 'RealmDB; The best database of hackers on MCBE.',
+                  text: `${process.env.FOOTER}`,
                   icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                 },
               };
-                const hackerDB = mongoose.Schema({
-                    gamertag: {type: String, required: true},
-                    xuid: {type: String, required: true},
-                    dbid: {type: String, required: true},
-                    discord: {type: String, required: true},
-                    realm: {type: String, required: true},
-                    reason: {type: String, required: true},
-                  })
-                  const Hacker = mongoose.models.Hacker || mongoose.model('Hacker', hackerDB);
-                    const hacker = new Hacker({ 
+                    hackerDB.collection.insertOne({ 
                      gamertag: `${gamertag}`,
-                     xuid: `${xuid + ' ' + crypto.randomBytes(4).toString('hex')}`,
-                     discord: `${discordid + ' ' + crypto.randomBytes(4).toString('hex')}`,
+                     xuid: `${xuid}`,
+                     discord: `${discordid}`,
                      dbid: `${dbid}`,
-                     realm: `${realm + ' ' + crypto.randomBytes(4).toString('hex')}`,
+                     realm: `${realm}`,
                      reason: `${reason}`,
                      });
+                     hackerDB.countDocuments({}, function (err, count) {
+                      interaction.client.user.setPresence({
+                        activities: [{ name: `${count} hackers`, type: ActivityType.Watching }],
+                        status: 'online',
+                      });
+                    });
                      const id2 = interaction.client.channels.cache.get(`1059559606222856202`)
                      id2.send({ embeds: [databaseEmbed] });
                      id.send({ embeds: [dbLog] });
-                     hacker.save()
                       return interaction.reply({
                         content: `Successfully added **${gamertag}** to the RealmDB Database!`
                       })
@@ -307,7 +309,7 @@ module.exports = {
                         ],
                         timestamp: new Date().toISOString(),
                         footer: {
-                          text: 'RealmDB; The best database of hackers on MCBE.',
+                          text: `${process.env.FOOTER}`,
                           icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                         },
                       };
@@ -354,7 +356,7 @@ module.exports = {
                         ],
                         timestamp: new Date().toISOString(),
                         footer: {
-                          text: 'RealmDB; The best database of hackers on MCBE.',
+                          text: `${process.env.FOOTER}`,
                           icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                         },
                       };
@@ -373,9 +375,14 @@ module.exports = {
                 if (!userData.isAdmin) return interaction.reply(`Invalid Permission! You can not remove from the database!`)
                 return await interaction.reply({ content: `This command isn't done yet! Sorry check back later!`, ephemeral: true })
             }
+            commandCooldown.add(interaction.user.id);
+            setTimeout(() => {
+              talkedRecently.delete(interaction.user.id);
+            }, 120000);
+        }
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
-		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Invite Command has an error**\nError: **${error}**\n\`\`\` \`\`\``)
+		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Database Command has an error**\nError: **${error}**\n\`\`\` \`\`\``)
         console.log(error)
 	}
 	},

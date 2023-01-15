@@ -1,27 +1,33 @@
 const { Events, ActivityType } = require('discord.js');
 const userDB = require('../models/userDB')
 const serverDB = require('../models/serverDB')
+const hackerDB = require('../models/hackerDB')
+const mongoose = require('mongoose')
 module.exports = {
 	name: Events.MessageCreate,
 	once: false,
 	async execute(message) {
     try {
       if (message.author.bot) return
-      message.client.user.setPresence({
-        activities: [{ name: `${message.client.guilds.cache.size} realms`, type: ActivityType.Watching }],
-        status: 'online',
-    })
+      if (mongoose.connection.readyState != 1) return
       const id = await message.client.channels.fetch(`1060345095347523644`)
       let userData = await userDB.findOne({ userID: message.author.id })
       if (!userData) {
         newUser = await userDB.create({userID: message.author.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
         userData = await userDB.findOne({ userID: message.author.id })
       }
+      if (userData.botBan) return
       let serverData = await serverDB.findOne({ serverID: message.guild.id })
       if (!serverData) {
         newServer = await serverDB.create({serverID: message.guild.id,botBan: false,isAdmin: false,hasPremium: false});newServer.save()
         serverData = await serverDB.findOne({ serverID: message.guild.id })
       }
+      hackerDB.countDocuments({}, function (err, count) {
+        message.client.user.setPresence({
+          activities: [{ name: `${count} hackers`, type: ActivityType.Watching }],
+          status: 'online',
+        });
+      });
       if (userData.isAdmin) {
       if (message.content.toLowerCase().startsWith('!say')) {
             const context = message.content.split('!say')
@@ -49,13 +55,26 @@ module.exports = {
             ],
             timestamp: new Date().toISOString(),
             footer: {
-              text: 'RealmDB; The best database of hackers on MCBE.',
+              text: `${process.env.FOOTER}`,
               icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
             },
           };
           
           id.send({ embeds: [logEmbed] });
           return message.channel.send(context[1])
+          // const logEmbed = {
+          //   color: 946466,
+          //   title: 'About All Realms are Safe (ARS)',
+          //   description: 'All Realms Are Safe is a community of realm owners, minecraft enthusiasts and wannabe vigilantes who have one goal in mind, try to solve the growing hacker problem on Minecraft: Bedrock Edition. We mainly take down big hacker groups and try to make ways to protect your realm more known to the public.',
+          //   image: { url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png' },
+          //   timestamp: new Date().toISOString(),
+          //   footer: {
+          //     text: `${process.env.FOOTER}`,
+          //     icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+          //   },
+          // };
+          
+          // return message.channel.send({ embeds: [logEmbed] });
       }
       if (message.content.toLowerCase().startsWith('!leave')) {
         const context = message.content.split('!leave')
@@ -89,7 +108,7 @@ module.exports = {
           ],
           timestamp: new Date().toISOString(),
           footer: {
-            text: 'RealmDB; The best database of hackers on MCBE.',
+            text: `${process.env.FOOTER}`,
             icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
           },
         };
@@ -130,7 +149,7 @@ module.exports = {
             ],
             timestamp: new Date().toISOString(),
             footer: {
-              text: 'RealmDB; The best database of hackers on MCBE.',
+              text: `${process.env.FOOTER}`,
               icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
             },
           };
@@ -162,9 +181,9 @@ module.exports = {
       }
     }
   } catch (error) {
-    message.reply('There has been an error! Sending to the developers!')
     const errorChannel = await message.client.channels.fetch('1060347445722230867')
     await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${message.guild.name}**\nUser Who Found It: **${message.author.tag}**・**${message.author.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **messageCreate event has an error**\nError: **${error}**\n\`\`\` \`\`\``)
-    console.log(error)}
+    console.log(error)
+  }
 	},
 };

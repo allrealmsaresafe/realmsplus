@@ -1,11 +1,13 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const userDB = require('../models/userDB')
+const mongoose = require('mongoose')
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('guilds')
 		.setDescription('Gets all of the guilds im in.'),
 	async execute(interaction) {
 		try {
+			if (mongoose.connection.readyState != 1) return
 			let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
               newUser = await userDB.create({userID: interaction.user.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
@@ -16,7 +18,7 @@ module.exports = {
     const guildList = Guilds.toString().replaceAll(',', '\n\n')
     const exampleEmbed = new EmbedBuilder()
 	.setColor('0e7122')
-	.setTitle('Here are all of the guilds that I am in!')
+	.setTitle(`Here are all of the guilds that I am in! [${interaction.client.guilds.cache.size}]`)
 	.setDescription(`**${guildList}**`)
 
 return interaction.reply({ embeds: [exampleEmbed] });

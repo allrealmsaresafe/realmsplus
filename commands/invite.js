@@ -1,11 +1,12 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Events } = require('discord.js');
-
+const mongoose = require('mongoose')
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('invite')
 		.setDescription('Sends an invite link to the bot.'),
 	async execute(interaction) {
 		try {
+			if (mongoose.connection.readyState != 1) return
 			const row = new ActionRowBuilder()
 			.addComponents(
         	new ButtonBuilder()
