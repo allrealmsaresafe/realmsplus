@@ -23,6 +23,11 @@ module.exports = {
 				inline: true,
 			  },
 			  {
+				name: 'Support Server',
+				value: `[Here](https://discord.gg/aras)`,
+				inline: true,
+			  },
+			  {
 				name: 'Developers',
 				value: `[Point](https://github.com/PointTheDeveloper)`,
 				inline: true,

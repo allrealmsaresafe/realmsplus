@@ -25,7 +25,7 @@ module.exports = {
                             subcommand
                                 .setName('remove')
                                 .setDescription('Removes a player to the database.')
-                                .addStringOption(option => option.setName('dbid').setDescription('The player\'s Database ID.').setRequired(true))),
+                                .addStringOption(option => option.setName('database-id').setDescription('The player\'s Database ID.').setRequired(true))),
 	async execute(interaction) {
 		try {
       if (mongoose.connection.readyState != 1) return
@@ -93,7 +93,7 @@ module.exports = {
             await interaction.showModal(addModal);
           const filter = (interaction) => interaction.customId === 'addModal';
           interaction.awaitModalSubmit({ filter, time: 120_000 })
-            .then(interaction => 
+            .then(async interaction => 
             {
             var gamertag = interaction.fields.getTextInputValue('gamertagInput');
             var discordid = interaction.fields.getTextInputValue('discordIdInput');
@@ -103,6 +103,8 @@ module.exports = {
             if (!discordid) discordid = `N/A`
             if (!realm) realm = `N/A`
             if (!xuid) xuid = `N/A`
+            const alreadyAdded = await hackerDB.exists({gamertag: gamertag})
+            if (alreadyAdded) return interaction.reply({content: `This user is already in the database!`, ephemeral: true})
             const databaseEmbed = {
                 color: 946466,
                 title: 'Player added to the RealmDB Database',
@@ -215,7 +217,8 @@ module.exports = {
                      id2.send({ embeds: [databaseEmbed] });
                      id.send({ embeds: [dbLog] });
                       return interaction.reply({
-                        content: `Successfully added **${gamertag}** to the RealmDB Database!`
+                        content: `Successfully added **${gamertag}** to the RealmDB Database!`,
+                        ephemeral: true
                       })
             }).catch(console.error);
             }
@@ -267,13 +270,15 @@ module.exports = {
             await interaction.showModal(reportModal);
             const filter = (interaction) => interaction.customId === 'reportModal';
             interaction.awaitModalSubmit({ filter, time: 500_000 })
-              .then(interaction => 
+              .then(async interaction => 
               {
                     let gamertag = interaction.fields.getTextInputValue('gamertagInput');
                     let discordid = interaction.fields.getTextInputValue('discordIdInput');
                     let realm = interaction.fields.getTextInputValue('realmInput');
                     let reason = interaction.fields.getTextInputValue('reasonInput');
                     let proof = interaction.fields.getTextInputValue('proofInput');
+                    const alreadyAdded = await hackerDB.exists({gamertag: gamertag})
+                    if (alreadyAdded) return interaction.reply({content: `This user is already in the database!`, ephemeral: true})
                     if (!discordid) discordid = `N/A`
                     if (!realm) realm = `N/A`
                     const reportEmbed = {
@@ -364,7 +369,8 @@ module.exports = {
                       id2.send({ embeds: [reportEmbed] });
                       id.send({ embeds: [reportLog] });
                       return interaction.reply({
-                        content: `Successfully reported **${gamertag}**! The report will be reviewed by the ARS Team shortly.`
+                        content: `Successfully reported **${gamertag}**! The report will be reviewed by the ARS Team shortly.`,
+                        ephemeral: true
                       });
             }).catch(console.error);
             }
@@ -373,11 +379,70 @@ module.exports = {
             }
             if (interaction.options.getSubcommand() === 'remove') {
                 if (!userData.isAdmin) return interaction.reply(`Invalid Permission! You can not remove from the database!`)
-                return await interaction.reply({ content: `This command isn't done yet! Sorry check back later!`, ephemeral: true })
+                const dbid = interaction.options.getString('database-id')
+                let hackerData = await hackerDB.findOne({ dbid: dbid })
+                if (!hackerData) return interaction.reply({ content: `This user isn't in the database!`, ephemeral: true })
+              const removeLog = {
+                  color: 946466,
+                  title: 'New report to the Database',
+                  description: 'Someone reported to the RealmDB Database.',
+                  fields: [
+                    {
+                      name: 'Author ID',
+                      value: `${interaction.user.id}`,
+                      inline: true,
+                    },
+                    {
+                      name: 'Server ID',
+                      value: `${interaction.guild.id}`,
+                      inline: true,
+                    },
+                    {
+                      name: 'Gamertag',
+                      value: `${hackerData.gamertag}`,
+                      inline: true,
+                    },
+                    {
+                      name: 'XUID',
+                      value: `${hackerData.xuid}`,
+                      inline: true,
+                    },
+                    {
+                      name: 'Discord ID',
+                      value: `${hackerData.discordid}`,
+                      inline: true,
+                    },
+                    {
+                      name: 'Database ID',
+                      value: `${hackerData.dbid}`,
+                      inline: true,
+                    },
+                    {
+                      name: 'Realm',
+                      value: `${hackerData.realm}`,
+                      inline: true,
+                    },
+                    {
+                      name: 'Reason',
+                      value: `${hackerData.reason}`,
+                      inline: true,
+                    },
+                  ],
+                  timestamp: new Date().toISOString(),
+                  footer: {
+                    text: `${process.env.FOOTER}`,
+                    icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+                  },
+                };
+                id.send({ embeds: [removeLog] });
+                interaction.reply({ content: `Successfully removed **${hackerData.gamertag}** from the database!`, ephemeral: true })
+                return hackerDB.deleteOne({
+                  dbid: dbid
+                })
             }
-            commandCooldown.add(interaction.user.id);
-            setTimeout(() => {
-              talkedRecently.delete(interaction.user.id);
+            if (!userData.isAdmin) commandCooldown.add(interaction.user.id);
+            if (!userData.isAdmin) setTimeout(() => {
+              commandCooldown.delete(interaction.user.id);
             }, 120000);
         }
 	} catch (error) {
