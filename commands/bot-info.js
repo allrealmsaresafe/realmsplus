@@ -29,7 +29,7 @@ module.exports = {
 			  },
 			  {
 				name: 'Developers',
-				value: `[Point](https://github.com/PointTheDeveloper)`,
+				value: `[Point](https://github.com/PointTheDeveloper)・[Shadowsniper784](https://github.com/Shadowsniper784)`,
 				inline: true,
 			  },
 			  {
