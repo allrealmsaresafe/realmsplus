@@ -4,6 +4,7 @@ const userDB = require('../models/userDB')
 const serverDB = require('../models/serverDB')
 const mongoose = require('mongoose')
 const hackerDB = require('../models/hackerDB')
+const realmProfileDB = require('../models/realmProfileDB')
 const commandCooldown = new Set();
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -30,7 +31,7 @@ module.exports = {
 		try {
       if (mongoose.connection.readyState != 1) return
       if (commandCooldown.has(interaction.user.id)) {
-            return interaction.reply({content: `You can only run this command every 2 minutes!`, ephemeral: true});
+            return await interaction.reply({content: `You can only run this command every 2 minutes!`, ephemeral: true});
             } else {
             const id = interaction.client.channels.cache.get(`1060345095347523644`)
             let userData = await userDB.findOne({ userID: interaction.user.id })
@@ -44,7 +45,7 @@ module.exports = {
               serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             }
             if (interaction.options.getSubcommand() === 'add') {
-                if (!userData.isAdmin) return interaction.reply({ content: `Invalid Permission! You can not add to the database! Instead make a report with \`/database report\`.`, ephemeral: true })
+                if (!userData.isAdmin) return await interaction.reply({ content: `Invalid Permission! You can not add to the database! Instead make a report with \`/database report\`.`, ephemeral: true })
                 const dbid = crypto.randomBytes(12).toString('hex')
                 const addModal = new ModalBuilder()
                 .setCustomId('addModal')
@@ -103,8 +104,17 @@ module.exports = {
             if (!discordid) discordid = `N/A`
             if (!realm) realm = `N/A`
             if (!xuid) xuid = `N/A`
+            if (realm) {
+              var realmProfile = await realmProfileDB.findOne({ name: realm })
+              var profileIDGenerator = Math.floor(Math.random() * 9999) + 1
+              var profileCheck = await realmProfileDB.findOne({ profileID: profileIDGenerator })
+              if (!realmProfile && !profileCheck) {
+                newProfile = await realmProfileDB.create({profileID: profileIDGenerator, name: realm, hackerCount: 1});newProfile.save()
+                realmProfile = await realmProfileDB.findOne({ profileID: profileIDGenerator })
+              }
+            }
             const alreadyAdded = await hackerDB.exists({gamertag: gamertag})
-            if (alreadyAdded) return interaction.reply({content: `This user is already in the database!`, ephemeral: true})
+            if (alreadyAdded) return await interaction.reply({content: `This user is already in the database!`, ephemeral: true})
             const databaseEmbed = {
                 color: 946466,
                 title: 'Player added to the RealmDB Database',
@@ -133,6 +143,11 @@ module.exports = {
                   {
                     name: 'Realm',
                     value: `${realm}`,
+                    inline: true,
+                  },
+                  {
+                    name: 'Realm Profile ID',
+                    value: `${profileIDGenerator}`,
                     inline: true,
                   },
                   {
@@ -188,6 +203,11 @@ module.exports = {
                     inline: true,
                   },
                   {
+                    name: 'Realm Profile ID',
+                    value: `${profileIDGenerator}`,
+                    inline: true,
+                  },
+                  {
                     name: 'Reason',
                     value: `${reason}`,
                     inline: true,
@@ -207,6 +227,18 @@ module.exports = {
                      realm: `${realm}`,
                      reason: `${reason}`,
                      });
+                     if (realmProfile.hackerCount === 0) {
+                      realmProfileDB.collection.insertOne({ 
+                        profileID: `${profileIDGenerator}`,
+                        name: `${realm}`,
+                        hackerCount: realmProfile.hackerCount + 1,
+                        });
+                     }
+                     if (realmProfile.hackerCount >= 1) {
+                      realmProfileDB.collection.updateOne({profileID: profileIDGenerator},{ 
+                        hackerCount: realmProfile.hackerCount + 1,
+                        });
+                     }
                      hackerDB.countDocuments({}, function (err, count) {
                       interaction.client.user.setPresence({
                         activities: [{ name: `${count} hackers`, type: ActivityType.Watching }],
@@ -216,7 +248,7 @@ module.exports = {
                      const id2 = interaction.client.channels.cache.get(`1059559606222856202`)
                      id2.send({ embeds: [databaseEmbed] });
                      id.send({ embeds: [dbLog] });
-                      return interaction.reply({
+                      return await interaction.reply({
                         content: `Successfully added **${gamertag}** to the RealmDB Database!`,
                         ephemeral: true
                       })
@@ -278,7 +310,7 @@ module.exports = {
                     let reason = interaction.fields.getTextInputValue('reasonInput');
                     let proof = interaction.fields.getTextInputValue('proofInput');
                     const alreadyAdded = await hackerDB.exists({gamertag: gamertag})
-                    if (alreadyAdded) return interaction.reply({content: `This user is already in the database!`, ephemeral: true})
+                    if (alreadyAdded) return await interaction.reply({content: `This user is already in the database!`, ephemeral: true})
                     if (!discordid) discordid = `N/A`
                     if (!realm) realm = `N/A`
                     const reportEmbed = {
@@ -368,20 +400,160 @@ module.exports = {
                       const id2 = interaction.client.channels.cache.get(`1061144118752989344`)
                       id2.send({ embeds: [reportEmbed] });
                       id.send({ embeds: [reportLog] });
-                      return interaction.reply({
+                      return await interaction.reply({
                         content: `Successfully reported **${gamertag}**! The report will be reviewed by the ARS Team shortly.`,
                         ephemeral: true
                       });
             }).catch(console.error);
             }
             if (interaction.options.getSubcommand() === 'search') {
-                return await interaction.reply({ content: `This command isn't done yet! Sorry check back later!`, ephemeral: true })
-            }
+          //     const searchModal = new ModalBuilder()
+          //     .setCustomId('searchModal')
+          //     .setTitle('Search for a hacker in the database');
+          // const gamertagInput = new TextInputBuilder()
+          //     .setCustomId('gamertagInput')
+          //     .setLabel("What is their gamertag?")
+          //     .setStyle(TextInputStyle.Short)
+          //         .setMaxLength(20)
+          //         .setMinLength(1)
+          //         .setPlaceholder('The player\'s Microsoft Account Name')
+          //         .setRequired(false);
+          //     const discordIdInput = new TextInputBuilder()
+          //     .setCustomId('discordIdInput')
+          //     .setLabel("What is their discord ID?")
+          //     .setStyle(TextInputStyle.Short)
+          //     .setMinLength(12)
+          //     .setPlaceholder('Their discord ID.')
+          //     .setRequired(false);
+          //     const realmInput = new TextInputBuilder()
+          //     .setCustomId('realmInput')
+          //     .setLabel("What is the realm name?")
+          //     .setStyle(TextInputStyle.Short)
+          //     .setPlaceholder('The name of the realm the player was caught on.')
+          //     .setRequired(false);
+          //     const profileInput = new TextInputBuilder()
+          //     .setCustomId('profileInput')
+          //     .setLabel("What is the realm profile ID?")
+          //     .setStyle(TextInputStyle.Paragraph)
+          //     .setMinLength(3)
+          //     .setPlaceholder('From when you a hacker is added for the realm?')
+          //     .setRequired(false);
+          // const actionRow1 = new ActionRowBuilder().addComponents(gamertagInput);
+          // const actionRow2 = new ActionRowBuilder().addComponents(discordIdInput);
+          // const actionRow3 = new ActionRowBuilder().addComponents(realmInput);
+          // const actionRow4 = new ActionRowBuilder().addComponents(profileInput);
+          // searchModal.addComponents(actionRow1, actionRow2, actionRow3,actionRow4);
+          // await interaction.showModal(searchModal);
+          // const filter = (interaction) => interaction.customId === 'searchModal';
+          // interaction.awaitModalSubmit({ filter, time: 500_000 })
+          //   .then(async interaction => 
+          //   {
+          //         let gamertag = interaction.fields.getTextInputValue('gamertagInput');
+          //         let discordid = interaction.fields.getTextInputValue('discordIdInput');
+          //         let realm = interaction.fields.getTextInputValue('realmInput');
+          //         let profileid = interaction.fields.getTextInputValue('profileInput');
+          //         if (!realm && !profileid) var hackerProfile = null
+          //         if (!realm && profileid) realmProfile = await realmProfileDB.findOne({profileID: profileid})
+          //         if (gamertag) var hackerProfile = await hackerDB.findOne({gamertag: gamertag})
+          //         if (!gamertag && !discordid && !realm && !profileid) return await interaction.reply({content: `You must choose atleast one option!`, ephemeral: true})
+          //         if (!gamertag && discordid) var hackerProfile = await hackerDB.findOne({discord: discordid})
+          //         if (!gamertag && !discordid && realm || profileid) {
+          //           realmProfile = await realmProfileDB.findOne({realm: realm})
+          //           if (!realmProfile) realmProfile = await realmProfileDB.findOne({profileID: profileid})
+          //           if (!realmProfile) return await interaction.reply({ content: `Realm profile not found!`, ephemeral: true})
+          //         }
+          //         if (!hackerProfile && gamertag && !realm && !profileid || !hackerProfile && discordid && !realm && !profileid) return await interaction.reply({ content: `Player is not in the database!`, ephemeral: true})
+          //         if (realmProfile || hackerProfile) {
+          //           if (!gamertag && !discordid && !profileid && realm || profileid) {
+          //             if (!realm) realm = realmProfile.realm
+          //             hackerDB.countDocuments({ realm: realm }, async function (count) {
+          //               if (realm) count = realmProfile.hackerCount
+          //             searchEmbed = {
+          //               color: 946466,
+          //               title: `Result found for ${interaction.user.tag}!`,
+          //               description: `According to your search query, here is the realm profile I found.`,
+          //               fields: [
+          //                 {
+          //                   name: 'Realm',
+          //                   value: `${realm}`,
+          //                   inline: true,
+          //                 },
+          //                 {
+          //                   name: 'Realm Profile ID',
+          //                   value: `${realmProfile.profileID}`,
+          //                   inline: true,
+          //                 },
+          //                 {
+          //                   name: 'Hacker Count',
+          //                   value: `${count}`,
+          //                   inline: true,
+          //                 },
+          //               ],
+          //               timestamp: new Date().toISOString(),
+          //               footer: {
+          //                 text: `${process.env.FOOTER}`,
+          //                 icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+          //               },
+          //             };
+          //             await interaction.reply({ content: `Successfully found the realm profile for **${realm}**`, ephemeral: true})
+          //             return interaction.channel.send({ embeds: [searchEmbed] });
+          //           });
+          //           } else {
+          //           searchEmbed = {
+          //             color: 946466,
+          //             title: `Result found for ${interaction.user.tag}!`,
+          //             description: `According to your search query, here is the hacker that I found.`,
+          //             fields: [
+          //               {
+          //                 name: 'Gamertag',
+          //                 value: `${hackerProfile.gamertag}`,
+          //                 inline: true,
+          //               },
+          //               {
+          //                 name: 'XUID',
+          //                 value: `${hackerProfile.xuid}`,
+          //                 inline: true,
+          //               },
+          //               {
+          //                 name: 'Discord ID',
+          //                 value: `${hackerProfile.discord}`,
+          //                 inline: true,
+          //               },
+          //               {
+          //                 name: 'Database ID',
+          //                 value: `${hackerProfile.dbid}`,
+          //                 inline: true,
+          //               },
+          //               {
+          //                 name: 'Realm',
+          //                 value: `${hackerProfile.realm}`,
+          //                 inline: true,
+          //               },
+          //               {
+          //                 name: 'Reason',
+          //                 value: `${hackerProfile.reason}`,
+          //                 inline: true,
+          //               },
+          //             ],
+          //             timestamp: new Date().toISOString(),
+          //             footer: {
+          //               text: `${process.env.FOOTER}`,
+          //               icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+          //             },
+          //           };
+          //           await interaction.reply({content: `Successfully found **${hackerProfile.gamertag}** in the hacker database! They were banned for **${alreadyAdded.reason}**!`, ephemeral: true})
+          //           return interaction.channel.send({ embeds: [searchEmbed] });
+          //         }
+          //         }
+          //       // return await interaction.reply({ content: `This command isn't done yet! Sorry check back later!`, ephemeral: true })
+          //   })
+          return interaction.reply({ content: `This command is currently being reworked! Try again later!`, ephemeral: true})
+          }
             if (interaction.options.getSubcommand() === 'remove') {
-                if (!userData.isAdmin) return interaction.reply(`Invalid Permission! You can not remove from the database!`)
+                if (!userData.isAdmin) return await interaction.reply(`Invalid Permission! You can not remove from the database!`)
                 const dbid = interaction.options.getString('database-id')
                 let hackerData = await hackerDB.findOne({ dbid: dbid })
-                if (!hackerData) return interaction.reply({ content: `This user isn't in the database!`, ephemeral: true })
+                if (!hackerData) return await interaction.reply({ content: `This user isn't in the database!`, ephemeral: true })
               const removeLog = {
                   color: 946466,
                   title: 'Player removed from the database',
@@ -435,7 +607,7 @@ module.exports = {
                   },
                 };
                 id.send({ embeds: [removeLog] });
-                interaction.reply({ content: `Successfully removed **${hackerData.gamertag}** from the database!`, ephemeral: true })
+                await interaction.reply({ content: `Successfully removed **${hackerData.gamertag}** from the database!`, ephemeral: true })
                 return hackerDB.deleteOne({
                   dbid: dbid
                 })

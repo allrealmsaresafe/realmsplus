@@ -179,6 +179,24 @@ module.exports = {
           }
       })
       }
+      if (message.content.toLowerCase().startsWith('!botban')) {
+        const context = message.content.split('!botban')
+        let user = await message.client.users.fetch(`${context[1].replaceAll(' ', '')}`);
+        let userData = await userDB.findOne({ userID: user.id })
+        if (!userData) {
+          newUser = await userDB.create({userID: user.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+          userData = await userDB.findOne({ userID: user.id })
+        }
+        if (userData.isAdmin) return message.reply('This user is already banned from RealmDB!')
+        message.reply(`Successfully banned <@${context[1].replaceAll(' ', '')}> from using RealmDB!`)
+        await userDB.findOneAndUpdate({
+          userID: user.id
+      }, {
+          $set: {
+              botBan: true,
+          }
+      })
+      }
     }
   } catch (error) {
     const errorChannel = await message.client.channels.fetch('1060347445722230867')
