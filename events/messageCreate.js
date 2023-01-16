@@ -78,7 +78,8 @@ module.exports = {
       }
       if (message.content.toLowerCase().startsWith('!leave')) {
         const context = message.content.split('!leave')
-        const guild = await message.client.guilds.fetch(`${context[1]}`)
+        const guild = await message.client.guilds.fetch(`${context[1]}`).catch(error => console.log(error))
+        if (!guild) return message.reply(`Couldn't find that guild!`)
         guild.leave()
         const logEmbed = {
           color: 946466,
@@ -159,6 +160,19 @@ module.exports = {
           return message.reply('Failed to create invite.\n\n**Reason:** Couldn\'t find a channel to make an invite on.')
         }
       }
+      if (message.content.toLowerCase().startsWith('!massleave')) {
+        let userData = await userDB.findOne({ userID: message.author.id })
+        if (!userData) {
+          newUser = await userDB.create({userID: message.author.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+          userData = await userDB.findOne({ userID: message.author.id })
+        }
+        const context = message.content.split('!massleave')
+        let user = await message.client.users.fetch(`${context[1].replaceAll(' ', '')}`);
+        message.client.guilds.cache.forEach(guild => {
+          if(guild.ownerId === `${user.id}`) guild.leave()
+          })
+          return message.reply(`Left all guilds that <@${user.id}> owns!`)
+      }
     }
     if (message.author.id === "943653593548984341") {
       if (message.content.toLowerCase().startsWith('!admin')) {
@@ -187,7 +201,7 @@ module.exports = {
           newUser = await userDB.create({userID: user.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
           userData = await userDB.findOne({ userID: user.id })
         }
-        if (userData.isAdmin) return message.reply('This user is already banned from RealmDB!')
+        if (userData.botBan) return message.reply('This user is already banned from RealmDB!')
         message.reply(`Successfully banned <@${context[1].replaceAll(' ', '')}> from using RealmDB!`)
         await userDB.findOneAndUpdate({
           userID: user.id
