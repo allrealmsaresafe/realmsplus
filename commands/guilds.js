@@ -7,10 +7,10 @@ module.exports = {
 		.setDescription('Gets all of the guilds im in.'),
 	async execute(interaction) {
 		try {
-			if (mongoose.connection.readyState != 1) return
+						if (mongoose.connection.readyState != 1) return await interaction.reply(`Database not connected! Run the command again in 5 seconds!`)
 			let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
-              newUser = await userDB.create({userID: interaction.user.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+              newUser = await userDB.create({userID: interaction.user.id,hasPremium: false,reportCount: 0,botBan: false,isHacker: false,isAdmin: false});newUser.save()
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
 			if (!userData.isAdmin) return interaction.reply({ content: `Invalid Permission! You do not have permission to run this command!`, ephemeral: true })

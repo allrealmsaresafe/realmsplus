@@ -1,6 +1,7 @@
 const { Client, GatewayIntentBits, Collection, Events } = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
+const Enmap = require('enmap')
 require('dotenv').config()
 const token = process.env.TOKEN
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent] });
@@ -8,7 +9,7 @@ const mongoose = require('mongoose')
 const userDB = require('./models/userDB')
 const eventsPath = path.join(__dirname, './events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
-
+const commandCooldown = new Set();
 for (const file of eventFiles) {
 	const filePath = path.join(eventsPath, file);
 	const event = require(filePath);
@@ -29,15 +30,36 @@ for (const file of commandFiles) {
 	client.commands.set(command.data.name, command);
 }
 
+client.prefixcommands = new Enmap();
+
+fs.readdir("./prefix-commands/", (err, files) => {
+  if (err) return console.error(err);
+  files.forEach(file => {
+    if (!file.endsWith(".js")) return;
+    let props = require(`./prefix-commands/${file}`);
+    let commandName = file.split(".")[0];
+    client.prefixcommands.set(commandName, props);
+  });
+});
+
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
 	let userData = await userDB.findOne({ userID: interaction.user.id })
 	if (!userData) {
-	  newUser = await userDB.create({userID: interaction.user.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+	  newUser = await userDB.create({userID: interaction.user.id,hasPremium: false,reportCount: 0,botBan: false,isHacker: false,isAdmin: false});newUser.save()
 	  userData = await userDB.findOne({ userID: interaction.user.id })
 	}
 	if (userData.botBan) return interaction.reply({ content: `Uh oh! You are banned from using RealmDB!`, ephemeral: true })
+	if (commandCooldown.has(interaction.user.id)) {
+		return await interaction.reply({content: `You can only run a command every minute!`, ephemeral: true});
+		} else {
+			if (!userData.isAdmin) {
+				commandCooldown.add(interaction.user.id);
+				setTimeout(() => {
+					commandCooldown.delete(interaction.user.id);
+				  }, 60000);
+			}
 	const command = client.commands.get(interaction.commandName);
 
 	if (!command) return;
@@ -49,6 +71,7 @@ client.on(Events.InteractionCreate, async interaction => {
 		errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Slash Command execute error**\nError: **${error}**\n\`\`\` \`\`\``)
 		console.log(error)
 	}
+}
 });
 
 client.login(token);

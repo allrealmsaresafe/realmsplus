@@ -1,10 +1,11 @@
 const mongoose = require('mongoose')
 
 const serverDB = new mongoose.Schema({
-  serverID: {type: String, required: true, unique: true},
-  botBan: {type: Boolean, required: true, default: false},
-  isAdmin: {type: Boolean, required: true, default: false},
-  hasPremium: {type: Boolean, required: true, default: false},
+  serverID: {type: String, unique: true},
+  whitelisted: {type: Boolean, default: false},
+  discordBanModule: {type: Boolean, default: false},
+  logsChannel: {type: String, default: '0'},
+  hasPremium: {type: Boolean, default: false},
 })
 
 const model = mongoose.model('serverDB', serverDB)

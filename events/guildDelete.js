@@ -6,16 +6,16 @@ module.exports = {
 	name: Events.GuildDelete,
 	once: false,
 	async execute(guild) {
-    if (mongoose.connection.readyState != 1) return
+    			if (mongoose.connection.readyState != 1) return
     const id = await guild.client.channels.fetch(`1060345116000268428`)
     let userData = await userDB.findOne({ userID: guild.ownerId })
     if (!userData) {
-      newUser = await userDB.create({userID: guild.ownerId,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+      newUser = await userDB.create({userID: guild.ownerId,botBan: false,hasPremium: false,reportCount: 0,isHacker: false,isAdmin: false});newUser.save()
       userData = await userDB.findOne({ userID: guild.ownerId })
     }
     let serverData = await serverDB.findOne({ serverID: guild.id })
     if (!serverData) {
-      newServer = await serverDB.create({serverID: guild.id,botBan: false,isAdmin: false,hasPremium: false});newServer.save()
+      newServer = await serverDB.create({serverID: guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',hasPremium: false});newServer.save()
       serverData = await serverDB.findOne({ serverID: guild.id })
     }
     const leaveLogEmbed = {

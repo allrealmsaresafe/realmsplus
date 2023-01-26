@@ -3,6 +3,7 @@ const userDB = require('../models/userDB')
 const serverDB = require('../models/serverDB')
 const hackerDB = require('../models/hackerDB')
 const mongoose = require('mongoose')
+require('dotenv').config()
 module.exports = {
 	name: Events.MessageCreate,
 	once: false,
@@ -13,13 +14,13 @@ module.exports = {
       const id = await message.client.channels.fetch(`1060345095347523644`)
       let userData = await userDB.findOne({ userID: message.author.id })
       if (!userData) {
-        newUser = await userDB.create({userID: message.author.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+        newUser = await userDB.create({userID: message.author.id,botBan: false,hasPremium: false,reportCount: 0,isHacker: false,isAdmin: false});newUser.save()
         userData = await userDB.findOne({ userID: message.author.id })
       }
       if (userData.botBan) return
       let serverData = await serverDB.findOne({ serverID: message.guild.id })
       if (!serverData) {
-        newServer = await serverDB.create({serverID: message.guild.id,botBan: false,isAdmin: false,hasPremium: false});newServer.save()
+        newServer = await serverDB.create({serverID: message.guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',hasPremium: false});newServer.save()
         serverData = await serverDB.findOne({ serverID: message.guild.id })
       }
       hackerDB.countDocuments({}, function (err, count) {
@@ -28,54 +29,13 @@ module.exports = {
           status: 'online',
         });
       });
+      const args = message.content.slice(process.env.PREFIX.length).trim().split(/ +/g);
+      const command = args.shift().toLowerCase();
+      const cmd = message.client.prefixcommands.get(command);
+      if (!cmd) return;
+      cmd.run(message, args);
+      return
       if (userData.isAdmin) {
-      if (message.content.toLowerCase().startsWith('!say')) {
-            const context = message.content.split('!say')
-          message.delete()
-          const logEmbed = {
-            color: 946466,
-            title: 'Say prefix command',
-            description: 'A RealmDB admin used the say prefix command! Here is the information regarding it.',
-            fields: [
-              {
-                name: 'Author ID',
-                value: `${message.author.id}`,
-                inline: true,
-              },
-              {
-                name: 'Server ID',
-                value: `${message.guild.id}`,
-                inline: true,
-              },
-              {
-                name: 'Contents',
-                value: `${context[1]}`,
-                inline: true,
-              },
-            ],
-            timestamp: new Date().toISOString(),
-            footer: {
-              text: `${process.env.FOOTER}`,
-              icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
-            },
-          };
-          
-          id.send({ embeds: [logEmbed] });
-          return message.channel.send(context[1])
-          // const logEmbed = {
-          //   color: 946466,
-          //   title: 'About All Realms are Safe (ARS)',
-          //   description: 'All Realms Are Safe is a community of realm owners, minecraft enthusiasts and wannabe vigilantes who have one goal in mind, try to solve the growing hacker problem on Minecraft: Bedrock Edition. We mainly take down big hacker groups and try to make ways to protect your realm more known to the public.',
-          //   image: { url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png' },
-          //   timestamp: new Date().toISOString(),
-          //   footer: {
-          //     text: `${process.env.FOOTER}`,
-          //     icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
-          //   },
-          // };
-          
-          // return message.channel.send({ embeds: [logEmbed] });
-      }
       if (message.content.toLowerCase().startsWith('!leave')) {
         const context = message.content.split('!leave')
         const guild = await message.client.guilds.fetch(`${context[1]}`).catch(error => console.log(error))
@@ -104,6 +64,11 @@ module.exports = {
             {
               name: 'Target Guild Name',
               value: `${guild.name}`,
+              inline: true,
+            },
+            {
+              name: 'Target Guild Member Count',
+              value: `${guild.memberCount}`,
               inline: true,
             },
           ],
@@ -193,7 +158,7 @@ module.exports = {
           }
       })
       }
-      if (message.content.toLowerCase().startsWith('!botban')) {
+      if (message.content.toLowerCase().startsWith('!serverwhitelist')) {
         const context = message.content.split('!botban')
         let user = await message.client.users.fetch(`${context[1].replaceAll(' ', '')}`);
         let userData = await userDB.findOne({ userID: user.id })
@@ -202,6 +167,40 @@ module.exports = {
           userData = await userDB.findOne({ userID: user.id })
         }
         if (userData.botBan) return message.reply('This user is already banned from RealmDB!')
+        const reportLog = {
+          color: 946466,
+          title: 'New user banned from using RealmDB',
+          description: `Someone banned a user from using RealmDB.`,
+          fields: [
+            {
+              name: 'Author ID',
+              value: `${message.author.id}`,
+              inline: true,
+            },
+            {
+              name: 'Server ID',
+              value: `${message.guild.id}`,
+              inline: true,
+            },
+            {
+              name: 'Banned User Tag',
+              value: `${user.tag}`,
+              inline: true,
+            },
+            {
+              name: 'Banned User ID',
+              value: `${user.id}`,
+              inline: true,
+            },
+          ],
+          timestamp: new Date().toISOString(),
+          footer: {
+            text: `${process.env.FOOTER}`,
+            icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+          },
+        };
+        const id = message.client.channels.cache.get(`1060345095347523644`)
+        id.send({ embeds: [reportLog] });
         message.reply(`Successfully banned <@${context[1].replaceAll(' ', '')}> from using RealmDB!`)
         await userDB.findOneAndUpdate({
           userID: user.id

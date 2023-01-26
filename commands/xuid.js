@@ -47,11 +47,12 @@ module.exports = {
         .addStringOption(option => option.setName('gamertag').setDescription('The gamertag you want XUID from.').setRequired(true)),
 	async execute(interaction) {
 		try {
-			if (mongoose.connection.readyState != 1) return
-            const gamertag = interaction.options.getString('gamertag')
-            let xbox = new XboxHandler()
-            xbox.authenticate(`${process.env.EMAIL}`, `${process.env.PASSWORD}`).then(async () => await xbox.fetchGT(`AllRealmsSafe`))
-            return interaction.reply(`**${gamertag}'s XUID is **${xuid}**`)
+						if (mongoose.connection.readyState != 1) return await interaction.reply(`Database not connected! Run the command again in 5 seconds!`)
+            // const gamertag = interaction.options.getString('gamertag')
+            // let xbox = new XboxHandler()
+            // xbox.authenticate(`${process.env.EMAIL}`, `${process.env.PASSWORD}`).then(async () => await xbox.fetchGT(`AllRealmsSafe`))
+            // return interaction.reply(`**${gamertag}'s XUID is **${xuid}**`)
+            return await interaction.reply({ content: `This command isn't done yet! Try again later!`, ephemeral: true})
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
 		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **XUID Command has an error**\nError: **${error}**\n\`\`\` \`\`\``)
