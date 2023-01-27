@@ -1137,7 +1137,6 @@ module.exports = {
               let desc = ""
               for (let i = 0; i < listSort.length; i++) {
                 let name = listSort[i].name
-                let profileid = listSort[i].profileID
                 let hackers = listSort[i].hackerCount
                 desc += `**${i + 1}.** __${name}__\nHacker Count: ${hackers}\n\n`
               }
