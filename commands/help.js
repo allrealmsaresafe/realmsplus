@@ -45,8 +45,8 @@ module.exports = {
             )
             const helpEmbed = {
                 color: 946466,
-                title: 'RealmDB; A Minecraft: Bedrock Edition Hacker Database.',
-                description: `RealmDB is a Minecraft: Bedrock Edition hacker database which allows users to search for hackers within the database and even report hackers to be added! Below you will find buttons and clicking each one will give you a different helpful answer!`,
+                title: 'Realms+ |A Minecraft: Bedrock Edition Realm Manager.',
+                description: `Realms+ is A Minecraft: Bedrock Edition Realm Manager which allows users to manage their realm directly from discord!\nWe also have a database of realm hackers and malicious discord users to stop them from joining your realm or discord server.`,
                 timestamp: new Date().toISOString(),
                 footer: {
                   text: `${process.env.FOOTER}`,
@@ -61,8 +61,8 @@ module.exports = {
                         if (i.customId === 'cmdlist') {
                             const cmdList = {
                                 color: 946466,
-                                title: 'RealmDB Commands',
-                                description: `**Database Commands:**\n\`/database search\` - Allows a user to search the RealmDB hacker database for a gamertag, discord id, realm name, or realm profile id.\n\`/database report\` - Allows a user to report a hacker to the RealmDB team with a chance that they get added to the hacker database if enough proof is given.\n\`/database leaderboard <type>\` - Allows a user to display the Realm Profile Leaderboard.\n\`/help\` - Provides helpful information about RealmDB.\n\`/bot-info\` - Provides stats/information about RealmDB.\n\`/server-info\` Provides stats/information about the server you're in.\n\`/user-info <user>\` - Provides stats/information about a specific user.\n\`/xuid <gamertag>\` - Allows users to convert a gamertag to an Xbox User ID (XUID).`,
+                                title: 'Realms+ Commands',
+                                description: `**Database Commands:**\n\`/database search <type realm|discord>\` - Allows a user to search the Realms+ hacker database for a gamertag, discord id, realm name, or realm profile id.\n\`/database report <type realm|discord>\` - Allows a user to report a hacker to the Realms+ team with a chance that they get added to the hacker database if enough proof is given.\n\`/database leaderboard <type realm|discord> <type realm|user>\` - Allows a user to display the Realm Profile Leaderboard.\n\`/help\` - Provides helpful information about Realms+.\n\`/bot-info\` - Provides stats/information about Realms+.\n\`/server-info\` Provides stats/information about the server you're in.\n\`/user-info <user>\` - Provides stats/information about a specific user.\n\`/lookup <gamertag|xuid>\` - Allows users to lookup an Xbox User based on their Gamertag or XUID.`,
                                 timestamp: new Date().toISOString(),
                                 footer: {
                                   text: `${process.env.FOOTER}`,
@@ -74,8 +74,8 @@ module.exports = {
                         if (i.customId === 'faq') {
                             const faq = {
                                 color: 946466,
-                                title: 'RealmDB Frequently Asked Questions',
-                                description: `**Frequently Asked Questions:**\n\`𝗤\` **How are false bans prevented?**\n\`𝗔\` *When a report is submitted, it goes through a system of review in which the RealmDB Team analyzes the proof before making a decision.*\n\`𝗤\` **What is the purpose of RealmDB?**\n\`𝗔\` *RealmDB is a database oriented bot that stores a list of hackers for realm owners to be able to search and ban them thus protecting their realm.*`,
+                                title: 'Realms+ Frequently Asked Questions',
+                                description: `**Frequently Asked Questions:**\n\`𝗤\` **How are false database bans prevented?**\n\`𝗔\` *When a report is submitted, it goes through a system of review in which the Realms+ Team analyzes the proof before making a decision.*\n\`𝗤\` **What is the purpose of Realms+?**\n\`𝗔\` *Realms+ is a bot that allows realm owners to manage their realm directly from discord and search the database of hackers and malicious discord users so they can protect their realm even more!*`,
                                 timestamp: new Date().toISOString(),
                                 footer: {
                                   text: `${process.env.FOOTER}`,
@@ -89,11 +89,10 @@ module.exports = {
                     }
                 });
                 collector.on('end', collected => {
-                  console.log(`Collected ${collected.size} interactions.`);
                 });
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
-		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Help Command has an error**\nError: **${error}**\n\`\`\` \`\`\``)
+		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Help Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
 		console.log(error)
 	}
 	},

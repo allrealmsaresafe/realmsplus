@@ -5,15 +5,15 @@ exports.run = async (message, args) => {
     if (args.toString().replaceAll(' ', '') === '') return message.reply(`\`!serverwhitelist\` is a command that allows for a server to be whitelisted from the effects of the Security Measures put in place to prevent server botting.\n\nSyntax: !serverwhitelist <server-id>`)
     let userData = await userDB.findOne({ userID: message.author.id })
     if (!userData) {
-      newUser = await userDB.create({userID: message.author.id,botBan: false,hasPremium: false,reportCount: 0,isHacker: false,isAdmin: false});newUser.save()
+      newUser = await userDB.create({userID: message.author.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save()
       userData = await userDB.findOne({ userID: message.author.id })
     }
-    if (!userData.isAdmin) return message.reply(`You must be an official RealmDB Admin to run this command!`)
+    if (!userData.isAdmin) return message.reply(`You must be an official Realms+ Admin to run this command!`)
     const guild = await message.client.guilds.fetch(`${args.toString().replaceAll(' ', '')}`);
     if (!guild) return message.reply(`Server not found!`)
     let serverData = await serverDB.findOne({ serverID: guild.id })
     if (!serverData) {
-      newServer = await serverDB.create({serverID: guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',hasPremium: false});newServer.save()
+      newServer = await serverDB.create({serverID: guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false});newServer.save()
       serverData = await serverDB.findOne({ serverID: guild.id })
     }
     if (serverData.whitelisted) return message.reply('This server is already whitelisted!')

@@ -11,7 +11,7 @@ module.exports = {
 			if (mongoose.connection.readyState != 1) return await interaction.reply(`Database not connected! Run the command again in 5 seconds!`)
 			let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
-              newUser = await userDB.create({userID: interaction.user.id,hasPremium: false,reportCount: 0,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+              newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save()
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
             let user = interaction.options.getMember('user')
@@ -64,7 +64,7 @@ module.exports = {
 		  return interaction.reply({ embeds: [infoEmbed] });
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
-		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **User Information Command has an error**\nError: **${error}**\n\`\`\` \`\`\``)
+		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **User Information Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
 		console.log(error)
 	}
 	},

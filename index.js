@@ -47,10 +47,10 @@ client.on(Events.InteractionCreate, async interaction => {
 
 	let userData = await userDB.findOne({ userID: interaction.user.id })
 	if (!userData) {
-	  newUser = await userDB.create({userID: interaction.user.id,hasPremium: false,reportCount: 0,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+	  newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save()
 	  userData = await userDB.findOne({ userID: interaction.user.id })
 	}
-	if (userData.botBan) return interaction.reply({ content: `Uh oh! You are banned from using RealmDB!`, ephemeral: true })
+	if (userData.botBan) return interaction.reply({ content: `Uh oh! You are banned from using Realms+!`, ephemeral: true })
 	if (commandCooldown.has(interaction.user.id)) {
 		return await interaction.reply({content: `You can only run a command every minute!`, ephemeral: true});
 		} else {
@@ -68,10 +68,59 @@ client.on(Events.InteractionCreate, async interaction => {
 		await command.execute(interaction);
 	} catch (error) {
 		const errorChannel = client.channels.cache.get('1060347445722230867')
-		errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Slash Command execute error**\nError: **${error}**\n\`\`\` \`\`\``)
+		errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Slash Command execute error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
 		console.log(error)
 	}
 }
 });
+
+// const { request } = require('undici');
+// const express = require('express');
+// const clientId = process.env.APPCLIENTID;
+// const clientSecret = process.env.CLIENTSECRET;
+// const port = process.env.PORT;
+
+// const app = express();
+
+// app.get('/', async ({ query }, response) => {
+// 	const { code } = query;
+
+// 	if (code) {
+// 		try {
+// 			const tokenResponseData = await request('https://discord.com/api/oauth2/token', {
+// 				method: 'POST',
+// 				body: new URLSearchParams({
+// 					client_id: clientId,
+// 					client_secret: clientSecret,
+// 					code,
+// 					grant_type: 'authorization_code',
+// 					redirect_uri: `http://localhost:${port}`,
+// 					scope: 'identify',
+// 				}).toString(),
+// 				headers: {
+// 					'Content-Type': 'application/x-www-form-urlencoded',
+// 				},
+// 			});
+
+// 			const oauthData = await tokenResponseData.body.json();
+
+// 			const userResult = await request('https://discord.com/api/users/@me', {
+// 				headers: {
+// 					authorization: `${oauthData.token_type} ${oauthData.access_token}`,
+// 				},
+// 			});
+
+// 			console.log(await userResult.body.json());
+// 		} catch (error) {
+// 			// NOTE: An unauthorized token will not throw an error
+// 			// tokenResponseData.statusCode will be 401
+// 			console.error(error);
+// 		}
+// 	}
+
+// 	return response.sendFile('index.html', { root: '.' });
+// });
+
+// app.listen(port, () => console.log(`App listening at http://localhost:${port}`));
 
 client.login(token);

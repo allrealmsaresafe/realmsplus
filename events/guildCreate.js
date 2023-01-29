@@ -10,12 +10,12 @@ module.exports = {
     const id = await guild.client.channels.fetch(`1060345116000268428`)
     let userData = await userDB.findOne({ userID: guild.ownerId })
     if (!userData) {
-      newUser = await userDB.create({userID: guild.ownerId,hasPremium: false,reportCount: 0,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+      newUser = await userDB.create({userID: guild.ownerId,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save()
       userData = await userDB.findOne({ userID: guild.ownerId })
     }
     let serverData = await serverDB.findOne({ serverID: guild.id })
     if (!serverData) {
-      newServer = await serverDB.create({serverID: guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',hasPremium: false});newServer.save()
+      newServer = await serverDB.create({serverID: guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false});newServer.save()
       serverData = await serverDB.findOne({ serverID: guild.id })
     }
     if (userData.botBan || serverData.botBan) {
@@ -55,7 +55,7 @@ module.exports = {
       return guild.leave()
     }
     if (guild.memberCount < 30 && !userData.isAdmin && !serverData.whitelisted) {
-      if (guild.systemChannel) guild.systemChannel.send(`Sorry! For security reasons your server must have over 30 members to use RealmDB!`)
+      if (guild.systemChannel) guild.systemChannel.send(`Sorry! For security reasons your server must have over 30 members to use Realms+!`)
       const joinEmbed = {
         color: 946466,
         title: 'Unable to Join Guild',
@@ -93,7 +93,7 @@ module.exports = {
     }
     const joinEmbed = {
       color: 946466,
-      title: 'Thanks for inviting RealmDB!',
+      title: 'Thanks for inviting Realms+!',
       description: 'Please run `/help` if you need help!\nPlease make sure to also join our Support Server if you need more help:\nhttps://discord.gg/Q2ndaxNqVy',
       timestamp: new Date().toISOString(),
       footer: {

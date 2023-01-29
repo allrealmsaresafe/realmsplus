@@ -24,7 +24,7 @@ module.exports = {
 		return await interaction.reply({ content: 'Thanks for inviting me! Protect your realm today!', components: [row] });
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
-		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Invite Command has an error**\nError: **${error}**\n\`\`\` \`\`\``)
+		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Invite Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
 		console.log(error)
 	}
 	},

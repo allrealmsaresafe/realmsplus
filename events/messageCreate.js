@@ -9,26 +9,23 @@ module.exports = {
 	once: false,
 	async execute(message) {
     try {
-      if (message.author.bot) return
       if (mongoose.connection.readyState != 1) return
       const id = await message.client.channels.fetch(`1060345095347523644`)
       let userData = await userDB.findOne({ userID: message.author.id })
       if (!userData) {
-        newUser = await userDB.create({userID: message.author.id,botBan: false,hasPremium: false,reportCount: 0,isHacker: false,isAdmin: false});newUser.save()
+        newUser = await userDB.create({userID: message.author.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save()
         userData = await userDB.findOne({ userID: message.author.id })
       }
-      if (userData.botBan) return
+      if (message.author.bot || userData.botBan) return
       let serverData = await serverDB.findOne({ serverID: message.guild.id })
       if (!serverData) {
-        newServer = await serverDB.create({serverID: message.guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',hasPremium: false});newServer.save()
+        newServer = await serverDB.create({serverID: message.guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false});newServer.save()
         serverData = await serverDB.findOne({ serverID: message.guild.id })
       }
-      hackerDB.countDocuments({}, function (err, count) {
-        message.client.user.setPresence({
-          activities: [{ name: `${count} hackers`, type: ActivityType.Watching }],
+            message.client.user.setPresence({
+          activities: [{ name: `${message.client.guilds.cache.size} servers!`, type: ActivityType.Watching }],
           status: 'online',
         });
-      });
       const args = message.content.slice(process.env.PREFIX.length).trim().split(/ +/g);
       const command = args.shift().toLowerCase();
       const cmd = message.client.prefixcommands.get(command);
@@ -44,7 +41,7 @@ module.exports = {
         const logEmbed = {
           color: 946466,
           title: 'Leave prefix command',
-          description: 'A RealmDB admin used the leave prefix command! Here is the information regarding it.',
+          description: 'A Realms+ admin used the leave prefix command! Here is the information regarding it.',
           fields: [
             {
               name: 'Author ID',
@@ -90,7 +87,7 @@ module.exports = {
           const logEmbed = {
             color: 946466,
             title: 'Invite prefix command',
-            description: 'A RealmDB admin used the invite prefix command! Here is the information regarding it.',
+            description: 'A Realms+ admin used the invite prefix command! Here is the information regarding it.',
             fields: [
               {
                 name: 'Author ID',
@@ -128,7 +125,7 @@ module.exports = {
       if (message.content.toLowerCase().startsWith('!massleave')) {
         let userData = await userDB.findOne({ userID: message.author.id })
         if (!userData) {
-          newUser = await userDB.create({userID: message.author.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+          newUser = await userDB.create({userID: message.author.id,botBan: false,isAdmin: false});newUser.save()
           userData = await userDB.findOne({ userID: message.author.id })
         }
         const context = message.content.split('!massleave')
@@ -145,11 +142,11 @@ module.exports = {
         let user = await message.client.users.fetch(`${context[1].replaceAll(' ', '')}`);
         let userData = await userDB.findOne({ userID: user.id })
         if (!userData) {
-          newUser = await userDB.create({userID: user.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+          newUser = await userDB.create({userID: user.id,botBan: false,isAdmin: false});newUser.save()
           userData = await userDB.findOne({ userID: user.id })
         }
         if (userData.isAdmin) return message.reply('This user is already an admin!')
-        message.reply(`Successfully made <@${context[1].replaceAll(' ', '')}> an admin for RealmDB!`)
+        message.reply(`Successfully made <@${context[1].replaceAll(' ', '')}> an admin for Realms+!`)
         await userDB.findOneAndUpdate({
           userID: user.id
       }, {
@@ -163,14 +160,14 @@ module.exports = {
         let user = await message.client.users.fetch(`${context[1].replaceAll(' ', '')}`);
         let userData = await userDB.findOne({ userID: user.id })
         if (!userData) {
-          newUser = await userDB.create({userID: user.id,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+          newUser = await userDB.create({userID: user.id,botBan: false,isAdmin: false});newUser.save()
           userData = await userDB.findOne({ userID: user.id })
         }
-        if (userData.botBan) return message.reply('This user is already banned from RealmDB!')
+        if (userData.botBan) return message.reply('This user is already banned from Realms+!')
         const reportLog = {
           color: 946466,
-          title: 'New user banned from using RealmDB',
-          description: `Someone banned a user from using RealmDB.`,
+          title: 'New user banned from using Realms+',
+          description: `Someone banned a user from using Realms+.`,
           fields: [
             {
               name: 'Author ID',
@@ -201,7 +198,7 @@ module.exports = {
         };
         const id = message.client.channels.cache.get(`1060345095347523644`)
         id.send({ embeds: [reportLog] });
-        message.reply(`Successfully banned <@${context[1].replaceAll(' ', '')}> from using RealmDB!`)
+        message.reply(`Successfully banned <@${context[1].replaceAll(' ', '')}> from using Realms+!`)
         await userDB.findOneAndUpdate({
           userID: user.id
       }, {
@@ -213,7 +210,7 @@ module.exports = {
     }
   } catch (error) {
     const errorChannel = await message.client.channels.fetch('1060347445722230867')
-    await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${message.guild.name}**\nUser Who Found It: **${message.author.tag}**・**${message.author.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **messageCreate event has an error**\nError: **${error}**\n\`\`\` \`\`\``)
+    await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **Can't get Guild Name**\nUser Who Found It: **${message.author.tag}**・**${message.author.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **messageCreate event has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
     console.log(error)
   }
 	},

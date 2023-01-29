@@ -25,7 +25,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
           .setName('report')
-          .setDescription('Report a player to get them banned on RealmDB.')
+          .setDescription('Report a player to get them banned on Realms+.')
           .addStringOption(option => option.setName('database').setDescription('The database you want to report to.').addChoices(
             { name: 'Realm Hacker Database', value: 'realm' },
             { name: 'Discord User Database', value: 'discord' },
@@ -53,9 +53,10 @@ module.exports = {
           .setDescription('Displays the database leaderboard.')
           .addStringOption(option => option.setName('type').setDescription('The type of leaderboard you want to display.').addChoices(
             { name: 'Realm Leaderboard', value: 'realm' },
-            { name: 'User Leaderboard', value: 'user' },
-            { name: 'Server Leaderboard', value: 'server' },
-            { name: 'Most Recent Added Hackers', value: 'recent' },
+            // { name: 'Report Leaderboard', value: 'user' },
+            { name: 'Admin Leaderboard', value: 'admin' },
+            // { name: 'Server Leaderboard', value: 'server' },
+            // { name: 'Most Recent Added Hackers', value: 'recent' },
           ).setRequired(true))),
 	async execute(interaction) {
 		try {
@@ -63,12 +64,12 @@ module.exports = {
             const id = interaction.client.channels.cache.get(`1060345095347523644`)
             let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
-              newUser = await userDB.create({userID: interaction.user.id,hasPremium: false,reportCount: 0,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+              newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save()
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
             let serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             if (!serverData) {
-              newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',hasPremium: false});newServer.save()
+              newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false});newServer.save()
               serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             }
             if (interaction.options.getSubcommand() === 'add') {
@@ -137,6 +138,7 @@ module.exports = {
                       discordUser = await discordDB.findOne({ userID: discordid })
                     }
                     let serversWithModule = await serverDB.find({ discordBanModule: true })
+                    if (typeof Number(discordid) != Number) return await interaction.reply({ content: `Invalid Snowflake! You must put the user's Discord ID! Find a tutorial on how to get one here:\n\nhttps://www.remote.tools/remote-work/how-to-find-discord-id`, ephemeral: true})
                       let user = await interaction.client.users.fetch(`${discordid}`);
                      if (user) {
                       // interaction.client.guilds.cache.forEach(guild => {
@@ -190,8 +192,8 @@ module.exports = {
                   if (!alreadyAdded) return await interaction.reply({content: `The user with the gamertag: **${gamertag}** is already in the database!`, ephemeral: true})
                   const databaseEmbed = {
                       color: 946466,
-                      title: 'Player added to the RealmDB Hacker Database (RHD)',
-                      description: 'A new player was just added to the RealmDB Hacker & Player Database.',
+                      title: 'Player added to the Realms+ Hacker Database (RHD)',
+                      description: 'A new player was just added to the Realms+ Hacker & Player Database.',
                       fields: [
                         {
                           name: 'Gamertag',
@@ -238,7 +240,7 @@ module.exports = {
                   const dbLog = {
                       color: 946466,
                       title: 'New entry in the Database',
-                      description: 'A RealmDB admin added a new player to the RealmDB Hacker Database (RHD).',
+                      description: 'A Realms+ admin added a new player to the Realms+ Hacker Database (RHD).',
                       fields: [
                         {
                           name: 'Author ID',
@@ -305,24 +307,27 @@ module.exports = {
                                 hackerCount: 1
                               }
                               });
-                           hackerDB.countDocuments({}, function (err, count) {
+                              await userData.collection.updateOne({userID: interaction.user.id},{ 
+                                $inc: {
+                                  addCount: 1
+                                }
+                                });
                             interaction.client.user.setPresence({
-                              activities: [{ name: `${count} hackers`, type: ActivityType.Watching }],
+                              activities: [{ name: `${interaction.client.guilds.cache.size} servers.`, type: ActivityType.Watching }],
                               status: 'online',
                             });
-                          });
                            const id2 = interaction.client.channels.cache.get(`1059559606222856202`)
                            id2.send({ embeds: [databaseEmbed] });
                            id.send({ embeds: [dbLog] });
                             return await interaction.reply({
-                              content: `Successfully added **${gamertag}** to the RealmDB Hacker Database (RHD)!`,
+                              content: `Successfully added **${gamertag}** to the Realms+ Hacker Database (RHD)!`,
                               ephemeral: true
                             })
-              }).catch( async submitted => {
-                return await interaction.followUp({content: `You took too long to submit the form! Try again!`})
+              }).catch( async () => {
+                return await interaction.channel.send({content: `Error!`})
               })
                 } else if (databaseType === 'discord') {
-                  if (!userData.isAdmin) return await interaction.reply({ content: `Invalid Permission! You can not add to the RealmDB Discord User Database (RDUD)!`, ephemeral: true})
+                  if (!userData.isAdmin) return await interaction.reply({ content: `Invalid Permission! You can not add to the Realms+ Discord User Database (RDUD)!`, ephemeral: true})
                   const discordDbidGen = crypto.randomBytes(15).toString('hex')
                     const discordAddModal = new ModalBuilder()
                     .setCustomId('discordAddModal')
@@ -351,10 +356,12 @@ module.exports = {
                 {
                     var discordID = interaction.fields.getTextInputValue('discordIdInput');
                     var reason = interaction.fields.getTextInputValue('reasonInput');
-                    let user = await interaction.client.users.fetch(`${discordID}`);
+                    let user = await interaction.client.users.fetch(`${discordID}`).catch(async () => {
+                      return await interaction.reply({ content: `Invalid Snowflake! You must put the user's Discord ID! Find a tutorial on how to get one here:\n\nhttps://www.remote.tools/remote-work/how-to-find-discord-id`, ephemeral: true})
+                    })
                     if (!user) return await interaction.reply({content: `Couldn't find a user with the Discord ID of: **${discordID}**!`, ephemeral: true})
                     let discordData = await discordDB.findOne({ userID: discordID })
-                    if (discordData) return await interaction.reply({ content: `This user is already in the RealmDB Discord User Database (RDUD)!`, ephemeral: true })
+                    if (discordData) return await interaction.reply({ content: `This user is already in the Realms+ Discord User Database (RDUD)!`, ephemeral: true })
                       let discordUser = await discordDB.findOne({ userID: discordID })
                       if (!discordUser) {
                         newUser = await discordDB.create({userID: discordID,dbid: discordDbidGen,reason: `${reason}`});newUser.save()
@@ -407,8 +414,8 @@ module.exports = {
                       // }
                     const databaseEmbed = {
                         color: 946466,
-                        title: 'Player added to the RealmDB Discord User Database (RDUD)',
-                        description: 'A new player was just added to the RealmDB Discord User Database.',
+                        title: 'Player added to the Realms+ Discord User Database (RDUD)',
+                        description: 'A new player was just added to the Realms+ Discord User Database.',
                         fields: [
                           {
                             name: 'Discord Tag',
@@ -439,8 +446,8 @@ module.exports = {
                       };
                       const databaseAdd = {
                         color: 946466,
-                        title: 'User added to the RealmDB Discord User Database (RDUD)',
-                        description: `${interaction.user.tag} added a user from the RealmDB Discord User Database (RDUD).`,
+                        title: 'User added to the Realms+ Discord User Database (RDUD)',
+                        description: `${interaction.user.tag} added a user from the Realms+ Discord User Database (RDUD).`,
                         fields: [
                           {
                             name: 'Author ID',
@@ -482,7 +489,7 @@ module.exports = {
                              const id2 = interaction.client.channels.cache.get(`1066483648343330816`)
                              id2.send({ embeds: [databaseEmbed] });
                              id.send({ embeds: [databaseAdd] });
-                             await interaction.reply({ content: `Successfully added **${user.tag}・${discordID}** to the RealmDB Discord User Database (RDUD)!`, ephemeral: true })
+                             await interaction.reply({ content: `Successfully added **${user.tag}・${discordID}** to the Realms+ Discord User Database (RDUD)!`, ephemeral: true })
                              await userDB.findOneAndUpdate({
                               userDB: interaction.user.id
                           }, {
@@ -496,7 +503,7 @@ module.exports = {
                               reason: `${reason}`,
                               });
                 }).catch( async submitted => {
-                  return await interaction.followUp({content: `You took too long to submit the form! Try again!`})
+                  return await interaction.channel.send({content: `You took too long to submit the form! Try again!`})
                 })
                 }
             }
@@ -564,7 +571,7 @@ module.exports = {
                     const reportEmbed = {
                         color: 946466,
                         title: 'Report a player to be reviewed by the ARAS team',
-                        description: 'New RealmDB Hacker Database (RHD) Report.',
+                        description: 'New Realms+ Hacker Database (RHD) Report.',
                         fields: [
                           {
                             name: 'Gamertag',
@@ -601,7 +608,7 @@ module.exports = {
                     const reportLog = {
                         color: 946466,
                         title: 'New report to the Hacker Database',
-                        description: 'Someone reported to the RealmDB Hacker Database (RHD).',
+                        description: 'Someone reported to the Realms+ Hacker Database (RHD).',
                         fields: [
                           {
                             name: 'Author ID',
@@ -653,7 +660,7 @@ module.exports = {
                         ephemeral: true
                       });
             }).catch( async submitted => {
-              return await interaction.followUp({content: `You took too long to submit the form! Try again!`})
+              return await interaction.channel.send({content: `You took too long to submit the form! Try again!`})
             })
               }
               if (databaseType === 'discord') {
@@ -693,6 +700,7 @@ module.exports = {
                     let discordID = interaction.fields.getTextInputValue('discordIdInput');
                     let reason = interaction.fields.getTextInputValue('reasonInput');
                     let proof = interaction.fields.getTextInputValue('proofInput');
+                    if (typeof Number(discordID) != Number) return await interaction.reply({ content: `Invalid Snowflake! You must put the user's Discord ID! Find a tutorial on how to get one here:\n\nhttps://www.remote.tools/remote-work/how-to-find-discord-id`, ephemeral: true})
                     let user = await interaction.client.users.fetch(`${discordID}`);
                     if (!user) return await interaction.reply({content: `Couldn't find a user with the Discord ID of: **${discordID}**!`, ephemeral: true})
                     const alreadyAdded = await discordDB.findOne({userID: discordID})
@@ -700,7 +708,7 @@ module.exports = {
                     const reportEmbed = {
                         color: 946466,
                         title: 'Report a user to be reviewed by the ARAS team',
-                        description: 'New RealmDB Discord User Database (RDUD) Report.',
+                        description: 'New Realms+ Discord User Database (RDUD) Report.',
                         fields: [
                           {
                             name: 'Discord Tag',
@@ -732,7 +740,7 @@ module.exports = {
                     const reportLog = {
                         color: 946466,
                         title: 'New report to the Discord User Database',
-                        description: 'Someone reported to the RealmDB Hacker Database (RHD).',
+                        description: 'Someone reported to the Realms+ Hacker Database (RHD).',
                         fields: [
                           {
                             name: 'Author ID',
@@ -779,7 +787,7 @@ module.exports = {
                         ephemeral: true
                       });
             }).catch( async submitted => {
-              return await interaction.followUp({content: `You took too long to submit the form! Try again!`})
+              return await interaction.channel.send({content: `You took too long to submit the form! Try again!`})
             })
               }
             }
@@ -934,7 +942,7 @@ module.exports = {
                           return interaction.channel.send({ embeds: [searchEmbed] });
                         }
               }).catch( async submitted => {
-                return await interaction.followUp({content: `You took too long to submit the form! Try again!`})
+                return await interaction.channel.send({content: `You took too long to submit the form! Try again!`})
               })
               } else if (databaseType === 'discord') {
               const discordSearchModal = new ModalBuilder()
@@ -955,6 +963,7 @@ module.exports = {
             .then(async interaction => 
             {
                   let discordID = interaction.fields.getTextInputValue('discordIdInput');
+                  if (typeof Number(discordID) != Number) return await interaction.reply({ content: `Invalid Snowflake! You must put the user's Discord ID! Find a tutorial on how to get one here:\n\nhttps://www.remote.tools/remote-work/how-to-find-discord-id`, ephemeral: true})
                   let user = await interaction.client.users.fetch(`${discordID}`);
                   if (!user) return await interaction.reply({content: `Couldn't find a user with the Discord ID of: **${discordID}**!`, ephemeral: true})
                   var userProfile = await discordDB.findOne({userID: discordID})
@@ -994,7 +1003,7 @@ module.exports = {
                         interaction.channel.send({ embeds: [searchEmbed] });
                         return await interaction.reply({ content: `Successfully found **${user.tag}・${user.id}**! They were added for **${userProfile.reason}**!`, ephemeral: true})
             }).catch( async submitted => {
-              return await interaction.followUp({content: `You took too long to submit the form! Try again!`})
+              return await interaction.channel.send({content: `You took too long to submit the form! Try again!`})
             })
           }
         }
@@ -1008,7 +1017,7 @@ module.exports = {
                 const removeLog = {
                     color: 946466,
                     title: 'Player removed from the RHD database',
-                    description: `${interaction.user.tag} removed a player from the RealmDB Hacker Database.`,
+                    description: `${interaction.user.tag} removed a player from the Realms+ Hacker Database.`,
                     fields: [
                       {
                         name: 'Author ID',
@@ -1075,7 +1084,7 @@ module.exports = {
                   const removeLog = {
                       color: 946466,
                       title: 'User removed from the RDUD database',
-                      description: `${interaction.user.tag} removed a user from the RealmDB Discord User Database.`,
+                      description: `${interaction.user.tag} removed a user from the Realms+ Discord User Database.`,
                       fields: [
                         {
                           name: 'Author ID',
@@ -1122,62 +1131,119 @@ module.exports = {
                 }
             }
             if (interaction.options.getSubcommand() === 'leaderboard') {
-              let result = await realmProfileDB.find({});
-              let listSort = [];
-              for (let obj of result) {
-                listSort.push(obj)
-              }
-              listSort = listSort.sort(function (b, a) {
-                return a.hackerCount - b.hackerCount
-              })
-              listSort = listSort.filter(function BigEnough(value) {
-                return value.hackerCount > 0
-              })
-              listSort = listSort.slice(0 , 10)
-              let desc = ""
-              for (let i = 0; i < listSort.length; i++) {
-                let name = listSort[i].name
-                let hackers = listSort[i].hackerCount
-                desc += `**${i + 1}.** __${name}__\nHacker Count: ${hackers}\n\n`
-              }
-            const lbLog = {
-                color: 946466,
-                title: 'Database leaderboard requested',
-                description: `${interaction.user.tag} requested the database leaderboard.`,
-                fields: [
-                  {
-                    name: 'Author ID',
-                    value: `${interaction.user.id}`,
-                    inline: true,
+              if (interaction.options.getString('type') === 'realm') {
+                let result = await realmProfileDB.find({});
+                let listSort = [];
+                for (let obj of result) {
+                  listSort.push(obj)
+                }
+                listSort = listSort.sort(function (b, a) {
+                  return a.hackerCount - b.hackerCount
+                })
+                listSort = listSort.filter(function BigEnough(value) {
+                  return value.hackerCount > 0
+                })
+                listSort = listSort.slice(0 , 10)
+                let desc = ""
+                for (let i = 0; i < listSort.length; i++) {
+                  let name = listSort[i].name
+                  let hackers = listSort[i].hackerCount
+                  desc += `**${i + 1}.** __${name}__\nHacker Count: **${hackers}**\n\n`
+                }
+                const lbEmbed = {
+                  color: 946466,
+                  title: 'Realms+ Realm Profile Leaderboard!',
+                  description: `${desc}`,
+                  timestamp: new Date().toISOString(),
+                  footer: {
+                    text: `${process.env.FOOTER}`,
+                    icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                   },
-                  {
-                    name: 'Server ID',
-                    value: `${interaction.guild.id}`,
-                    inline: true,
+                };
+                await id.send({ embeds: [lbLog] });
+                const lbLog = {
+                  color: 946466,
+                  title: 'Database leaderboard requested',
+                  description: `${interaction.user.tag} requested the database leaderboard.`,
+                  fields: [
+                    {
+                      name: 'Author ID',
+                      value: `${interaction.user.id}`,
+                      inline: true,
+                    },
+                    {
+                      name: 'Server ID',
+                      value: `${interaction.guild.id}`,
+                      inline: true,
+                    },
+                  ],
+                  timestamp: new Date().toISOString(),
+                  footer: {
+                    text: `${process.env.FOOTER}`,
+                    icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                   },
-                ],
-                timestamp: new Date().toISOString(),
-                footer: {
-                  text: `${process.env.FOOTER}`,
-                  icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
-                },
-              };
-              id.send({ embeds: [lbLog] });
-              const lbEmbed = {
-                color: 946466,
-                title: 'RealmDB Realm Profile Leaderboard!',
-                description: `${desc}`,
-                timestamp: new Date().toISOString(),
-                footer: {
-                  text: `${process.env.FOOTER}`,
-                  icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
-                },
-              };
-              await interaction.reply({ embeds: [lbEmbed] });
+                };
+                return await interaction.reply({ embeds: [lbEmbed] });
+              }
+              if (interaction.options.getString('type') === 'admin') {
+                if (!userData.isAdmin) return await interaction.reply({content: `Invalid Permission! You must be a Realms+ Admin to run this command!`, ephemeral: true})
+                let result = await userDB.find({isAdmin: true});
+                let listSort = [];
+                for (let obj of result) {
+                  listSort.push(obj)
+                }
+                listSort = listSort.sort(function (b, a) {
+                  return a.addCount - b.addCount
+                })
+                listSort = listSort.filter(function BigEnough(value) {
+                  return value.addCount > 0
+                })
+                listSort = listSort.slice(0 , 10)
+                let desc = ""
+                for (let i = 0; i < listSort.length; i++) {
+                  let id = listSort[i].userID
+                  let hackers = listSort[i].addCount
+                  desc += `**${i + 1}.** <@${id}>・${id}\nHackers Added: **${hackers}**\n\n`
+                }
+                const lbEmbed = {
+                  color: 946466,
+                  title: 'Realms+ Admin Leaderboard!',
+                  description: `${desc}`,
+                  timestamp: new Date().toISOString(),
+                  footer: {
+                    text: `${process.env.FOOTER}`,
+                    icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+                  },
+                };
+                const lbLog = {
+                  color: 946466,
+                  title: 'Admin leaderboard requested',
+                  description: `${interaction.user.tag} requested the admin leaderboard.`,
+                  fields: [
+                    {
+                      name: 'Author ID',
+                      value: `${interaction.user.id}`,
+                      inline: true,
+                    },
+                    {
+                      name: 'Server ID',
+                      value: `${interaction.guild.id}`,
+                      inline: true,
+                    },
+                  ],
+                  timestamp: new Date().toISOString(),
+                  footer: {
+                    text: `${process.env.FOOTER}`,
+                    icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+                  },
+                };
+                await id.send({ embeds: [lbLog] });
+                return await interaction.reply({ embeds: [lbEmbed] });
+              }
           }
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
-		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Database Command has an error**\nError: **${error}**\n\`\`\` \`\`\``)
+		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Database Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
         console.log(error)
 	}
 	},

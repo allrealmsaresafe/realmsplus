@@ -4,10 +4,10 @@ const realmProfileDB = require('../models/realmProfileDB')
 exports.run = async (message, args) => {
     let userData = await userDB.findOne({ userID: message.author.id })
     if (!userData) {
-      newUser = await userDB.create({userID: message.author.id,botBan: false,hasPremium: false,reportCount: 0,isHacker: false,isAdmin: false});newUser.save()
+      newUser = await userDB.create({userID: message.author.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save()
       userData = await userDB.findOne({ userID: message.author.id })
     }
-    if (!userData.isAdmin) return message.reply(`You must be an official RealmDB Admin to run this command!`)
+    if (!userData.isAdmin) return message.reply(`You must be an official Realms+ Admin to run this command!`)
     const id = message.client.channels.cache.get(`1060345095347523644`)
     let result = await realmProfileDB.find({});
     const listRaw = result.map(profile => '**' + profile.name + '**' + '\nID: ' + profile.profileID + '\nHacker Count: ' + profile.hackerCount);
@@ -15,7 +15,7 @@ exports.run = async (message, args) => {
     const logEmbed = {
       color: 946466,
       title: 'I just got the list of realm profiles.',
-      description: 'A RealmDB admin got the list of realm profiles! Here is the information regarding it.',
+      description: 'A Realms+ admin got the list of realm profiles! Here is the information regarding it.',
       fields: [
         {
           name: 'Author ID',
@@ -37,7 +37,7 @@ exports.run = async (message, args) => {
     id.send({ embeds: [logEmbed] });
     const profileEmbed = {
         color: 946466,
-        title: 'List of all Realm Profiles in RealmDB',
+        title: 'List of all Realm Profiles in Realms+',
         description: `${list}`,
         timestamp: new Date().toISOString(),
         footer: {

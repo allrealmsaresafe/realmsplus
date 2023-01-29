@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionsBitField, ChannelType  } = require('discord.js');
+const { SlashCommandBuilder, PermissionsBitField, ChannelType } = require('discord.js');
 const userDB = require('../models/userDB')
 const serverDB = require('../models/serverDB')
 const mongoose = require('mongoose')
@@ -24,12 +24,12 @@ module.exports = {
 			if (mongoose.connection.readyState != 1) return await interaction.reply(`Database not connected! Run the command again in 5 seconds!`)
 			let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
-              newUser = await userDB.create({userID: interaction.user.id,hasPremium: false,reportCount: 0,botBan: false,isHacker: false,isAdmin: false});newUser.save()
+              newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save()
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
             let serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             if (!serverData) {
-              newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',hasPremium: false});newServer.save()
+              newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false});newServer.save()
               serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             }
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return await interaction.reply({ content: `Invalid permission! You need the \`Administrator\` permission to run this command!`, ephemeral: true})
@@ -45,7 +45,7 @@ module.exports = {
                   var infoEmbed = {
                       color: 946466,
                       title: `Successfully turned the Discord Ban Module ${toggleType}!`,
-                      description: `Anyone who is in the RealmDB Discord User Database will be instantly banned from this server!`,
+                      description: `Anyone who is in the Realms+ Discord User Database will be instantly banned from this server!`,
                       timestamp: new Date().toISOString(),
                       footer: {
                         text: `${process.env.FOOTER}`,
@@ -71,7 +71,7 @@ module.exports = {
               var infoEmbed = {
                       color: 946466,
                       title: `Successfully set the Logs Channel in ${interaction.guild.name}!`,
-                      description: `Any time RealmDB needs to send a log, it will send to <#${channel.id}>・[Jump to channel](https://discord.com/channels/${interaction.guild.id}/${channel.id})`,
+                      description: `Any time Realms+ needs to send a log, it will send to <#${channel.id}>・[Jump to channel](https://discord.com/channels/${interaction.guild.id}/${channel.id})`,
                       timestamp: new Date().toISOString(),
                       footer: {
                         text: `${process.env.FOOTER}`,
@@ -89,7 +89,7 @@ module.exports = {
           return interaction.reply({ embeds: [infoEmbed], ephemeral: true });
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
-		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Module Command has an error**\nError: **${error}**\n\`\`\` \`\`\``)
+		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Module Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
 		console.log(error)
 	}
 	},
