@@ -123,11 +123,6 @@ module.exports = {
         }
       }
       if (message.content.toLowerCase().startsWith('!massleave')) {
-        let userData = await userDB.findOne({ userID: message.author.id })
-        if (!userData) {
-          newUser = await userDB.create({userID: message.author.id,botBan: false,isAdmin: false});newUser.save()
-          userData = await userDB.findOne({ userID: message.author.id })
-        }
         const context = message.content.split('!massleave')
         let user = await message.client.users.fetch(`${context[1].replaceAll(' ', '')}`);
         message.client.guilds.cache.forEach(guild => {
@@ -158,11 +153,6 @@ module.exports = {
       if (message.content.toLowerCase().startsWith('!serverwhitelist')) {
         const context = message.content.split('!botban')
         let user = await message.client.users.fetch(`${context[1].replaceAll(' ', '')}`);
-        let userData = await userDB.findOne({ userID: user.id })
-        if (!userData) {
-          newUser = await userDB.create({userID: user.id,botBan: false,isAdmin: false});newUser.save()
-          userData = await userDB.findOne({ userID: user.id })
-        }
         if (userData.botBan) return message.reply('This user is already banned from Realms+!')
         const reportLog = {
           color: 946466,
