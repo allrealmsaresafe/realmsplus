@@ -40,5 +40,7 @@ exports.run = async (message, args) => {
     };
     id.send({ embeds: [logEmbed] });
     message.channel.send(`${fixedMessage}`)
-    return message.delete()
+    return message.delete().catch(() => {
+      return
+    })
   };

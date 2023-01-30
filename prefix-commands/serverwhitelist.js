@@ -9,12 +9,10 @@ exports.run = async (message, args) => {
       userData = await userDB.findOne({ userID: message.author.id })
     }
     if (!userData.isAdmin) return message.reply(`You must be an official Realms+ Admin to run this command!`)
-    const guild = await message.client.guilds.fetch(`${args.toString().replaceAll(' ', '')}`);
-    if (!guild) return message.reply(`Server not found!`)
-    let serverData = await serverDB.findOne({ serverID: guild.id })
+    let serverData = await serverDB.findOne({ serverID: args.toString().replaceAll(' ', '') })
     if (!serverData) {
-      newServer = await serverDB.create({serverID: guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false});newServer.save()
-      serverData = await serverDB.findOne({ serverID: guild.id })
+      newServer = await serverDB.create({serverID: args.toString().replaceAll(' ', ''),whitelisted: false,discordBanModule: false,logsChannel: '0',gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false});newServer.save()
+      serverData = await serverDB.findOne({ serverID: args.toString().replaceAll(' ', '') })
     }
     if (serverData.whitelisted) return message.reply('This server is already whitelisted!')
     const id = message.client.channels.cache.get(`1060345095347523644`)
@@ -35,17 +33,7 @@ exports.run = async (message, args) => {
           },
           {
             name: 'Target Guild ID',
-            value: `${guild.id}`,
-            inline: true,
-          },
-          {
-            name: 'Target Guild Name',
-            value: `${guild.name}`,
-            inline: true,
-          },
-          {
-            name: 'Target Guild Member Count',
-            value: `${guild.memberCount}`,
+            value: `${args.toString().replaceAll(' ', '')}`,
             inline: true,
           },
         ],
@@ -56,9 +44,9 @@ exports.run = async (message, args) => {
         },
       };
       id.send({ embeds: [whitelistLog] });
-      message.reply(`Successfully whitelisted **${guild.name}**・**${guild.id}**!`)
+      message.reply(`Successfully whitelisted the guild with the ID: **${args.toString().replaceAll(' ', '')}**!`)
       await serverDB.findOneAndUpdate({
-        serverID: guild.id
+        serverID: args.toString().replaceAll(' ', '')
     }, {
         $set: {
             whitelisted: true,

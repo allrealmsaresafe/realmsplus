@@ -565,7 +565,7 @@ module.exports = {
                     let reason = interaction.fields.getTextInputValue('reasonInput');
                     let proof = interaction.fields.getTextInputValue('proofInput');
                     const alreadyAdded = await hackerDB.find({gamertag: gamertag})
-                    if (alreadyAdded) return await interaction.reply({content: `The user with the gamertag: **${gamertag}** is already in the database!`, ephemeral: true})
+                    if (alreadyAdded === true) return await interaction.reply({content: `The user with the gamertag: **${gamertag}** is already in the database!`, ephemeral: true})
                     if (!discordid) discordid = `N/A`
                     if (!realm) realm = `N/A`
                     const reportEmbed = {
@@ -1160,7 +1160,6 @@ module.exports = {
                     icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                   },
                 };
-                await id.send({ embeds: [lbLog] });
                 const lbLog = {
                   color: 946466,
                   title: 'Database leaderboard requested',
@@ -1183,6 +1182,7 @@ module.exports = {
                     icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                   },
                 };
+                await id.send({ embeds: [lbLog] });
                 return await interaction.reply({ embeds: [lbEmbed] });
               }
               if (interaction.options.getString('type') === 'admin') {
