@@ -2,7 +2,7 @@ require('dotenv').config()
 const userDB = require('../models/userDB')
 exports.run = async (message, args) => {
     if (args.toString().replaceAll(' ', '') === '') return message.reply(`\`!botban\` is a command that when executed on a user, bans them from inviting and using Realms+.\n\nSyntax: !botban <user-id>`)
-    if (message.author.id != '943653593548984341') return message.reply(`You must be an official Realms+ Developer to run this command!`)
+    if (message.author.id != '943653593548984341') return
     const user = await message.client.users.fetch(`${args.toString().replaceAll(' ', '')}`);
     if (!user) return message.reply(`User not found!`)
 

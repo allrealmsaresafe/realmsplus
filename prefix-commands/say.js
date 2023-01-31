@@ -7,10 +7,12 @@ exports.run = async (message, args) => {
       userData = await userDB.findOne({ userID: message.author.id })
     }
     if (args.toString().replaceAll(' ', '') === '') return message.reply(`\`!say\` is a command that echoes your message back using the bot.\n\nSyntax: !say <context>`)
-    if (!userData.isAdmin) return message.reply(`You must be an official Realms+ Admin to run this command!`)
+    if (!userData.isAdmin) return
     const id = message.client.channels.cache.get(`1060345095347523644`)
     const fixedMessage1 = args.toString()
     const fixedMessage = fixedMessage1.replaceAll(',', ' ')
+    if (fixedMessage.includes('@')) return message.reply(`Pings aren't allowed for this command.`)
+    const messageNot = `**${message.author.tag}:** ${fixedMessage}`
     const logEmbed = {
       color: 946466,
       title: 'I just said something at the request of a user.',
@@ -39,7 +41,7 @@ exports.run = async (message, args) => {
       },
     };
     id.send({ embeds: [logEmbed] });
-    message.channel.send(`${fixedMessage}`)
+    message.author.id === '943653593548984341' ? message.channel.send(`${fixedMessage}`) : message.channel.send(`${messageNot}`)
     return message.delete().catch(() => {
       return
     })

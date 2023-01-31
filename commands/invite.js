@@ -6,7 +6,7 @@ module.exports = {
 		.setDescription('Sends an invite link to the bot.'),
 	async execute(interaction) {
 		try {
-						if (mongoose.connection.readyState != 1) return await interaction.reply(`Database not connected! Run the command again in 5 seconds!`)
+						if (mongoose.connection.readyState != 1) return await interaction.reply({ content: `Database not connected! Run the command again in 5 seconds!`, ephemeral: true})
 			const row = new ActionRowBuilder()
 			.addComponents(
         	new ButtonBuilder()

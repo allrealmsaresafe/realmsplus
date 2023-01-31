@@ -10,7 +10,7 @@ exports.run = async (message, args) => {
       userData = await userDB.findOne({ userID: user.id })
     }
     if (userData.isAdmin) return message.reply(`This user is already an admin!`)
-    if (message.author.id !== '943653593548984341' && message.author.id !== '659742263399940147') return message.reply(`You must be an official Realms+ Developer to run this command!`)
+    if (message.author.id !== '943653593548984341' && message.author.id !== '659742263399940147') return
     const id = message.client.channels.cache.get(`1060345095347523644`)
     const logEmbed = {
       color: 946466,

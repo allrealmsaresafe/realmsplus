@@ -4,7 +4,7 @@ const serverDB = require('../models/serverDB')
 const mongoose = require('mongoose')
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('config')
+		.setName('server-config')
 		.setDescription('Allows you to configure your server.')
           .addSubcommand(subcommand =>
             subcommand
@@ -21,7 +21,7 @@ module.exports = {
                       .addChannelOption(option => option.setName('channel').setDescription('Set the Logs Channel.').addChannelTypes(ChannelType.GuildText))),
 	async execute(interaction) {
 		try {
-			if (mongoose.connection.readyState != 1) return await interaction.reply(`Database not connected! Run the command again in 5 seconds!`)
+			if (mongoose.connection.readyState != 1) return await interaction.reply({ content: `Database not connected! Run the command again in 5 seconds!`, ephemeral: true})
 			let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
               newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save()

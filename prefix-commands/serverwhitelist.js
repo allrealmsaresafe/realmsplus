@@ -8,7 +8,7 @@ exports.run = async (message, args) => {
       newUser = await userDB.create({userID: message.author.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save()
       userData = await userDB.findOne({ userID: message.author.id })
     }
-    if (!userData.isAdmin) return message.reply(`You must be an official Realms+ Admin to run this command!`)
+    if (!userData.isAdmin) return
     let serverData = await serverDB.findOne({ serverID: args.toString().replaceAll(' ', '') })
     if (!serverData) {
       newServer = await serverDB.create({serverID: args.toString().replaceAll(' ', ''),whitelisted: false,discordBanModule: false,logsChannel: '0',gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false});newServer.save()

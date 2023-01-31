@@ -113,6 +113,8 @@ module.exports = {
         icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
       },
     };
-    id.send({ embeds: [joinLogEmbed] })
+    id.send({ embeds: [joinLogEmbed] }).catch((error) => {
+      return
+    })
 	},
 };
