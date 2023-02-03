@@ -3,7 +3,7 @@ const userDB = require('../models/userDB')
 exports.run = async (message, args) => {
     let userData = await userDB.findOne({ userID: message.author.id })
     if (!userData) {
-      newUser = await userDB.create({userID: message.author.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save()
+      newUser = await userDB.create({userID: message.author.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save().catch()
       userData = await userDB.findOne({ userID: message.author.id })
     }
     if (args.toString().replaceAll(' ', '') === '') return message.reply(`\`!say\` is a command that echoes your message back using the bot.\n\nSyntax: !say <context>`)

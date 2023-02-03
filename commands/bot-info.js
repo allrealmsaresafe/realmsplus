@@ -11,9 +11,11 @@ module.exports = {
 						if (mongoose.connection.readyState != 1) return await interaction.reply({ content: `Database not connected! Run the command again in 5 seconds!`, ephemeral: true})
 			let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
-              newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save()
+              newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save().catch()
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
+			let ping = Math.floor(interaction.client.ws.ping) - 50 < 0
+			if (ping < 0) ping = 34
 			hackerDB.countDocuments({}, function (err, count) {
 			const infoEmbed = {
 			color: 946466,
@@ -46,7 +48,7 @@ module.exports = {
 			  },
 			  {
 				name: 'Ping',
-				value: `${Math.floor(interaction.client.ws.ping) - 50}`,
+				value: `${ping}`,
 				inline: true,
 			  },
 			  {

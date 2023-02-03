@@ -10,7 +10,7 @@ module.exports = {
     if (mongoose.connection.readyState != 1) return
     let userData = await userDB.findOne({ userID: guildMember.id })
     if (!userData) {
-      newUser = await userDB.create({userID: guildMember.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save()
+      newUser = await userDB.create({userID: guildMember.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save().catch()
       userData = await userDB.findOne({ userID: guildMember.id })
     }
     let discordUser = await discordDB.findOne({ userID: guildMember.id })

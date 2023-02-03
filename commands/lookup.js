@@ -28,7 +28,7 @@ module.exports = {
                         await interaction.deferReply({ content: `Loading <a:loading:1069385540077637742>`, ephemeral: true });
                         let userData = await userDB.findOne({ userID: interaction.user.id })
                         if (!userData) {
-                          newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save()
+                          newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save().catch()
                           userData = await userDB.findOne({ userID: interaction.user.id })
                         }
                         let serverData = await serverDB.findOne({ serverID: interaction.guild.id })
@@ -146,9 +146,10 @@ module.exports = {
                             const authflow = new Authflow()
                 
                             const api = RealmAPI.from(authflow, 'bedrock')
-                            const realm = await api.getRealmFromInvite(`${query}`).catch(async (error) => {
+                            const realm = await api.getRealmFromInvite(`${query}`).catch(async error => {
                               console.log(error)
-                              return await interaction.editReply({content: `Invalid Query! I couldn't find that realm!`, ephemeral: true})
+                              await interaction.editReply({content: `Invalid Query! I couldn't find that realm!`, ephemeral: true})
+                              return
                             })
                             var realmData = await realmProfileDB.findOne({ profileID: realm.name })
                             if (realmData != null) {

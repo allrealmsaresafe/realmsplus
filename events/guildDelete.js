@@ -10,7 +10,7 @@ module.exports = {
     const id = await guild.client.channels.fetch(`1060345116000268428`)
     let userData = await userDB.findOne({ userID: guild.ownerId })
     if (!userData) {
-      newUser = await userDB.create({userID: guild.ownerId,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save()
+      newUser = await userDB.create({userID: guild.ownerId,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save().catch()
       userData = await userDB.findOne({ userID: guild.ownerId })
     }
     let serverData = await serverDB.findOne({ serverID: guild.id })

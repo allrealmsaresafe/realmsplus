@@ -47,18 +47,18 @@ client.on(Events.InteractionCreate, async interaction => {
 
 	let userData = await userDB.findOne({ userID: interaction.user.id })
 	if (!userData) {
-	  newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save()
+	  newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save().catch()
 	  userData = await userDB.findOne({ userID: interaction.user.id })
 	}
 	if (userData.botBan) return interaction.reply({ content: `Uh oh! You are banned from using Realms+!`, ephemeral: true })
 	if (commandCooldown.has(interaction.user.id)) {
-		return await interaction.reply({content: `You can only run a command every minute!`, ephemeral: true});
+		return await interaction.reply({content: `You can only run a command every 5 seconds!`, ephemeral: true});
 		} else {
 			if (!userData.isAdmin) {
 				commandCooldown.add(interaction.user.id);
 				setTimeout(() => {
 					commandCooldown.delete(interaction.user.id);
-				  }, 60000);
+				  }, 5000);
 			}
 	const command = client.commands.get(interaction.commandName);
 

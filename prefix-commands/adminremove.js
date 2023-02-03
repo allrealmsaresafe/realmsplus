@@ -6,7 +6,7 @@ exports.run = async (message, args) => {
     if (!user) return message.reply(`User not found!`)
     let userData = await userDB.findOne({ userID: user.id })
     if (!userData) {
-      newUser = await userDB.create({userID: user.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save()
+      newUser = await userDB.create({userID: user.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save().catch()
       userData = await userDB.findOne({ userID: user.id })
     }
     if (!userData.isAdmin) return message.reply(`This user is not an admin!`)

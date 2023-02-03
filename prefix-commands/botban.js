@@ -8,7 +8,7 @@ exports.run = async (message, args) => {
 
     let userData = await userDB.findOne({ userID: user.id })
     if (!userData) {
-      newUser = await userDB.create({userID: user.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save()
+      newUser = await userDB.create({userID: user.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save().catch()
       userData = await userDB.findOne({ userID: user.id })
     }
     if (userData.botBan) return message.reply('This user is already banned from Realms+!')

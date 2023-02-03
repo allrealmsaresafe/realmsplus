@@ -1,21 +1,22 @@
 require('dotenv').config()
 const userDB = require('../models/userDB')
 exports.run = async (message, args) => {
-    if (args.toString().replaceAll(' ', '') === '') return message.reply(`\`!unadmin\` is a command that when executed on a user, removes their Realms+ Admin\n\nSyntax: !unadmin <user-id>.`)
-    const user = await message.client.users.fetch(`${args.toString().replaceAll(' ', '')}`);
+    if (args.toString().replaceAll(' ', '') === '') return message.reply(`\`!dm\` is a command that when executed on a user, DMs them a certain query.\n\nSyntax: !dm <user-id> <query>.`)
+    const argsFixed = args.toString().split(',')
+    const user = await message.client.users.fetch(`${argsFixed[0]}`);
+    const context = `${argsFixed.toString().replace(argsFixed[0], '').replaceAll(',', ' ').replaceAll('  ', ', ')}`
     if (!user) return message.reply(`User not found!`)
     let userData = await userDB.findOne({ userID: user.id })
-    if (!userData) {
-      newUser = await userDB.create({userID: user.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save()
+    if (userData === null) {
+      newUser = await userDB.create({userID: user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false});newUser.save().catch()
       userData = await userDB.findOne({ userID: user.id })
     }
-    if (!userData.isAdmin) return message.reply(`This user isn't an admin!`)
     if (message.author.id !== '943653593548984341' && message.author.id !== '659742263399940147') return
     const id = message.client.channels.cache.get(`1060345095347523644`)
     const logEmbed = {
       color: 946466,
-      title: 'Someone just lost Realms+ Admin.',
-      description: 'A user just got their Realms+ Admin removed! Here is the information regarding it.',
+      title: 'Someone was DMed by a Realms+ Admin.',
+      description: 'A user was just DMed by a Realms+ Admin! Here is the information regarding it.',
       fields: [
         {
           name: 'Author ID',
@@ -37,6 +38,11 @@ exports.run = async (message, args) => {
             value: `${user.tag}`,
             inline: true,
           },
+          {
+            name: 'DM Contents',
+            value: `${context}`,
+            inline: true,
+          },
       ],
       timestamp: new Date().toISOString(),
       footer: {
@@ -45,12 +51,8 @@ exports.run = async (message, args) => {
       },
     };
     id.send({ embeds: [logEmbed] });
-    await userDB.findOneAndUpdate({
-        userID: user.id
-    }, {
-        $set: {
-            isAdmin: false,
-        }
+    user.send(`${context}`).catch(error => {
+      return message.reply('Error! This usually occurs when the user has DMs off!')
     })
-    return message.reply(`Successfully remove <@${user.id}>'s admin for Realms+!`)
+    return message.reply(`Successfully sent \`${context}\` to **${user.tag}・${user.id}**!`)
   };
