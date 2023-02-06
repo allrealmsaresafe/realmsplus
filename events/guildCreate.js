@@ -10,12 +10,16 @@ module.exports = {
     const id = await guild.client.channels.fetch(`1060345116000268428`)
     let userData = await userDB.findOne({ userID: guild.ownerId })
     if (!userData) {
-      newUser = await userDB.create({userID: guild.ownerId,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save().catch()
+      newUser = await userDB.create({userID: guild.ownerId,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch(() => {
+      return
+    })
       userData = await userDB.findOne({ userID: guild.ownerId })
     }
     let serverData = await serverDB.findOne({ serverID: guild.id })
     if (!serverData) {
-      newServer = await serverDB.create({serverID: guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false});newServer.save()
+      newServer = await serverDB.create({serverID: guild.id,whitelisted: false,discordBanModule: false,configs: [{banLogs: '0', automod: '0', logsChannel: '0', relayChannel: '0', adminRoleID: '0', moderatorRoleID: '0'}],addCount: 0, realmChatRelay: false, autobanFromDB: false, automod: false, banCommand: [{ permission: ['404'], enabled: true }], kickCommand: [{ permission: ['404'], enabled: true }], statusCommand: [{ permission: ['404'], enabled: true }], playersCommand: [{ permission: ['0'], enabled: true }], editCommand: [{ permission: ['404'], enabled: true }], worldCommand: [{ permission: ['404'], enabled: true }], permissionsCommand: [{ permission: ['404'], enabled: true }], consoleCommand: [{ permission: ['404'], enabled: true }], automodCommand: [{ permission: ['404'], enabled: true }], botCommand: [{ permission: ['404'], enabled: true }],realmID: [{ realmID: '0', name: '0'}], botConnected: false, isOpen: [{ realmID: '0', status: '0'}], realmsBans: [{ realmID: '0', banCount: '0'}], realmsKicks: [{ realmID: '0', kickCount: '0'}],realmOperators: [{ realmID: '0', operators: ['0']}],currentLogic: [{ realmID: '0', logic: '0'}]});newServer.save().catch(() => {
+      return
+    })
       serverData = await serverDB.findOne({ serverID: guild.id })
     }
     if (userData.botBan || serverData.botBan) {
@@ -51,8 +55,12 @@ module.exports = {
         },
       };
       
-      id.send({ embeds: [joinEmbed] });
-      return guild.leave()
+      id.send({ embeds: [joinEmbed] }).catch(() => {
+      return
+    })
+      return guild.leave().catch(() => {
+      return
+    })
     }
     if (guild.memberCount < 30 && !userData.isAdmin && !serverData.whitelisted) {
       if (guild.systemChannel) guild.systemChannel.send(`Sorry! For security reasons your server must have over 30 members to use Realms+!`)
@@ -88,7 +96,7 @@ module.exports = {
         },
       };
       
-      id.send({ embeds: [joinEmbed] });
+      id.send({ embeds: [joinEmbed] })
       return guild.leave()
     }
     const joinEmbed = {
@@ -102,11 +110,13 @@ module.exports = {
       },
     };
     
-    if (guild.systemChannel) guild.systemChannel.send({ embeds: [joinEmbed] });
+    if (guild.systemChannel) guild.systemChannel.send({ embeds: [joinEmbed] }).catch(() => {
+      return
+    })
     const joinLogEmbed = {
       color: 946466,
       title: 'Joined a new server!',
-      description: `I was just invited to **${guild.name}** <t:${Math.trunc(Date.now() / 1000)}:R>! The owner of the server is **<@${guild.ownerId}>** and their id is **${guild.ownerId}**!`,
+      description: `I was just invited to **${guild.name}**・**${guild.id}** <t:${Math.trunc(Date.now() / 1000)}:R>! The owner of the server is **<@${guild.ownerId}>** and their id is **${guild.ownerId}**! The server has **${guild.memberCount}** members!`,
       timestamp: new Date().toISOString(),
       footer: {
         text: `${process.env.FOOTER}`,

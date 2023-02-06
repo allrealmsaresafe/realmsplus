@@ -10,7 +10,9 @@ module.exports = {
 						if (mongoose.connection.readyState != 1) return await interaction.reply({ content: `Database not connected! Run the command again in 5 seconds!`, ephemeral: true})
 			let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
-              newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save().catch()
+              newUser = await userDB.create({userID: interaction.user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch(() => {
+      return
+    })
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
 			if (!userData.isAdmin) return interaction.reply({ content: `Invalid Permission! You do not have permission to run this command!`, ephemeral: true })
@@ -20,7 +22,9 @@ module.exports = {
 	.setColor('0e7122')
 	.setTitle(`Here are all of the guilds that I am in! [${interaction.client.guilds.cache.size}]`)
 	.setDescription(`**${guildList}**`)
-return interaction.reply({ embeds: [exampleEmbed] });
+return interaction.reply({ embeds: [exampleEmbed] }).catch(() => {
+      return
+    })
 		// return await interaction.reply(Guilds);
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')

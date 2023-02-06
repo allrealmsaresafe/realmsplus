@@ -24,12 +24,16 @@ module.exports = {
 			if (mongoose.connection.readyState != 1) return await interaction.reply({ content: `Database not connected! Run the command again in 5 seconds!`, ephemeral: true})
 			let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
-              newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save().catch()
+              newUser = await userDB.create({userID: interaction.user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch(() => {
+      return
+    })
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
             let serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             if (!serverData) {
-              newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false});newServer.save()
+              newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,configs: [{banLogs: '0', automod: '0', logsChannel: '0', relayChannel: '0', adminRoleID: '0', moderatorRoleID: '0'}],addCount: 0, realmChatRelay: false, autobanFromDB: false, automod: false, banCommand: [{ permission: ['404'], enabled: true }], kickCommand: [{ permission: ['404'], enabled: true }], statusCommand: [{ permission: ['404'], enabled: true }], playersCommand: [{ permission: ['0'], enabled: true }], editCommand: [{ permission: ['404'], enabled: true }], worldCommand: [{ permission: ['404'], enabled: true }], permissionsCommand: [{ permission: ['404'], enabled: true }], consoleCommand: [{ permission: ['404'], enabled: true }], automodCommand: [{ permission: ['404'], enabled: true }], botCommand: [{ permission: ['404'], enabled: true }],realmID: [{ realmID: '0', name: '0'}], botConnected: false, isOpen: [{ realmID: '0', status: '0'}], realmsBans: [{ realmID: '0', banCount: '0'}], realmsKicks: [{ realmID: '0', kickCount: '0'}],realmOperators: [{ realmID: '0', operators: ['0']}],currentLogic: [{ realmID: '0', logic: '0'}]});newServer.save().catch(() => {
+      return
+    })
               serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             }
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) return await interaction.reply({ content: `Invalid permission! You need the \`Administrator\` permission to run this command!`, ephemeral: true})
@@ -44,7 +48,7 @@ module.exports = {
               if (toggleType === 'off' && !serverData.discordBanModule) return await interaction.reply({ content: `Can't disable module! This module is not enabled!`, ephemeral: true})
                   var infoEmbed = {
                       color: 946466,
-                      title: `Successfully turned the Discord Ban Module ${toggleType}!`,
+                      title: `<:yes:1070502230203039744> Successfully turned the Discord Ban Module ${toggleType}!`,
                       description: `Anyone who is in the Realms+ Discord User Database will be instantly banned from this server!`,
                       timestamp: new Date().toISOString(),
                       footer: {
@@ -70,7 +74,7 @@ module.exports = {
               if (serverData.logsChannel === channel.id) return await interaction.reply({ content: `The channel <#${channel.id}>・[Jump to channel](https://discord.com/channels/${interaction.guild.id}/${channel.id}) is already the Logs Channel!`, ephemeral: true})
               var infoEmbed = {
                       color: 946466,
-                      title: `Successfully set the Logs Channel in ${interaction.guild.name}!`,
+                      title: `<:yes:1070502230203039744> Successfully set the Logs Channel in ${interaction.guild.name}!`,
                       description: `Any time Realms+ needs to send a log, it will send to <#${channel.id}>・[Jump to channel](https://discord.com/channels/${interaction.guild.id}/${channel.id})`,
                       timestamp: new Date().toISOString(),
                       footer: {

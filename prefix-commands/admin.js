@@ -5,8 +5,8 @@ exports.run = async (message, args) => {
     const user = await message.client.users.fetch(`${args.toString().replaceAll(' ', '')}`);
     if (!user) return message.reply(`User not found!`)
     let userData = await userDB.findOne({ userID: user.id })
-    if (!userData) {
-      newUser = await userDB.create({userID: user.id,botBan: false,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,isAdmin: false});newUser.save().catch()
+    if (userData === null) {
+      newUser = await userDB.create({userID: user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false});newUser.save().catch()
       userData = await userDB.findOne({ userID: user.id })
     }
     if (userData.isAdmin) return message.reply(`This user is already an admin!`)
@@ -52,5 +52,5 @@ exports.run = async (message, args) => {
             isAdmin: true,
         }
     })
-    return message.reply(`Successfully made <@${user.id}> an admin for Realms+!`)
+    return message.reply(`<:yes:1070502230203039744> Successfully made <@${user.id}> an admin for Realms+!`)
   };

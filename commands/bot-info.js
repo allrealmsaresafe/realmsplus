@@ -11,10 +11,12 @@ module.exports = {
 						if (mongoose.connection.readyState != 1) return await interaction.reply({ content: `Database not connected! Run the command again in 5 seconds!`, ephemeral: true})
 			let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
-              newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save().catch()
+              newUser = await userDB.create({userID: interaction.user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch(() => {
+      return
+    })
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
-			let ping = Math.floor(interaction.client.ws.ping) - 50 < 0
+			let ping = Math.floor(interaction.client.ws.ping) - 50
 			if (ping < 0) ping = 34
 			hackerDB.countDocuments({}, function (err, count) {
 			const infoEmbed = {
@@ -63,7 +65,9 @@ module.exports = {
 			  icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
 			},
 		  };
-		  return interaction.reply({ embeds: [infoEmbed] });
+		  return interaction.reply({ embeds: [infoEmbed] }).catch(() => {
+      return
+    })
 		});
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')

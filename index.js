@@ -47,7 +47,9 @@ client.on(Events.InteractionCreate, async interaction => {
 
 	let userData = await userDB.findOne({ userID: interaction.user.id })
 	if (!userData) {
-	  newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save().catch()
+	  newUser = await userDB.create({userID: interaction.user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch(() => {
+      return
+    })
 	  userData = await userDB.findOne({ userID: interaction.user.id })
 	}
 	if (userData.botBan) return interaction.reply({ content: `Uh oh! You are banned from using Realms+!`, ephemeral: true })

@@ -1,4 +1,4 @@
-const { ActivityType, SlashCommandBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle, Events } = require('discord.js');
+const { ActivityType, SlashCommandBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle, ComponentType, ButtonBuilder, ButtonStyle } = require('discord.js');
 const crypto = require("crypto");
 const userDB = require('../models/userDB')
 const serverDB = require('../models/serverDB')
@@ -6,7 +6,9 @@ const mongoose = require('mongoose')
 const hackerDB = require('../models/hackerDB')
 const discordDB = require('../models/discordDB')
 const realmProfileDB = require('../models/realmProfileDB')
+const reportDB = require('../models/reportDB')
 const profileIDGenerator = crypto.randomBytes(5).toString('hex')
+const dbid = crypto.randomBytes(12).toString('hex')
 let realmProfile
 let hackerProfile
 require('dotenv').config()
@@ -61,24 +63,28 @@ module.exports = {
             // { name: 'Most Recent Added Hackers', value: 'recent' },
           ).setRequired(true))),
 	async execute(interaction) {
+    return await interaction.reply(`This command is undergoing development! Try again later!`)
 		try {
       			if (mongoose.connection.readyState != 1) return await interaction.reply({ content: `Database not connected! Run the command again in 5 seconds!`, ephemeral: true})
             const id = interaction.client.channels.cache.get(`1060345095347523644`)
             let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
-              newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save().catch()
+              newUser = await userDB.create({userID: interaction.user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch(() => {
+      return
+    })
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
             let serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             if (!serverData) {
-              newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false});newServer.save()
+              newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,configs: [{banLogs: '0', automod: '0', logsChannel: '0', relayChannel: '0', adminRoleID: '0', moderatorRoleID: '0'}],addCount: 0, realmChatRelay: false, autobanFromDB: false, automod: false, banCommand: [{ permission: ['404'], enabled: true }], kickCommand: [{ permission: ['404'], enabled: true }], statusCommand: [{ permission: ['404'], enabled: true }], playersCommand: [{ permission: ['0'], enabled: true }], editCommand: [{ permission: ['404'], enabled: true }], worldCommand: [{ permission: ['404'], enabled: true }], permissionsCommand: [{ permission: ['404'], enabled: true }], consoleCommand: [{ permission: ['404'], enabled: true }], automodCommand: [{ permission: ['404'], enabled: true }], botCommand: [{ permission: ['404'], enabled: true }],realmID: [{ realmID: '0', name: '0'}], botConnected: false, isOpen: [{ realmID: '0', status: '0'}], realmsBans: [{ realmID: '0', banCount: '0'}], realmsKicks: [{ realmID: '0', kickCount: '0'}],realmOperators: [{ realmID: '0', operators: ['0']}],currentLogic: [{ realmID: '0', logic: '0'}]});newServer.save().catch(() => {
+      return
+    })
               serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             }
             if (interaction.options.getSubcommand() === 'add') {
-                if (!userData.isAdmin) return await interaction.reply({ content: `Invalid Permission! You can not add to the database! Instead make a report with \`/database report\`.`, ephemeral: true })
+                if (!userData.databasePerms) return await interaction.reply({ content: `Invalid Permission! You can not add to the database! Instead make a report with \`/database report\`.`, ephemeral: true })
                 const databaseType = interaction.options.getString('database')
                 if (databaseType === 'realm') {
-                  const dbid = crypto.randomBytes(12).toString('hex')
                   const addModal = new ModalBuilder()
                   .setCustomId('addModal')
                   .setTitle('Add a hacker to the Hacker Database');
@@ -124,18 +130,28 @@ module.exports = {
               const actionRow5 = new ActionRowBuilder().addComponents(xuidInput);
               addModal.addComponents(actionRow1, actionRow5, actionRow2, actionRow3,actionRow4);
               await interaction.showModal(addModal);
-            const filter = (interaction) => interaction.customId === 'addModal';
-            await interaction.awaitModalSubmit({ filter, time: 999999 })
-              .then(async interaction => 
-              {
-                  var gamertag = interaction.fields.getTextInputValue('gamertagInput');
-                  var discordid = interaction.fields.getTextInputValue('discordIdInput');
-                  var realm = interaction.fields.getTextInputValue('realmInput');
-                  var reason = interaction.fields.getTextInputValue('reasonInput');
+              const submitted = await interaction.awaitModalSubmit({
+                // Timeout after a minute of not receiving any valid Modals
+                time: 99999,
+                // Make sure we only accept Modals from the User who sent the original Interaction we're responding to
+                filter: i => i.user.id === interaction.user.id && i.customId === 'addModal',
+              }).catch(error => {
+                // Catch any Errors that are thrown (e.g. if the awaitModalSubmit times out after 60000 ms)
+                console.error(error)
+                return null
+              })
+              if (submitted) {
+                  var gamertag = submitted.fields.getTextInputValue('gamertagInput');
+                  var discordid = submitted.fields.getTextInputValue('discordIdInput');
+                  var realm = submitted.fields.getTextInputValue('realmInput');
+                  var reason = submitted.fields.getTextInputValue('reasonInput');
                   if (discordid) {
                     let discordUser = await discordDB.findOne({ userID: discordid })
+                    var discordDbidGen = crypto.randomBytes(15).toString('hex')
                     if (!discordUser) {
-                      newUser = await discordDB.create({userID: discordid,dbid: discordDbidGen,reason: `Realm Hacking [${reason}]`});newUser.save().catch()
+                      newUser = await discordDB.create({userID: discordid,dbid: discordDbidGen,reason: `Realm Hacking [${reason}]`});newUser.save().catch(() => {
+                          return
+                        })
                       discordUser = await discordDB.findOne({ userID: discordid })
                     }
                     let serversWithModule = await serverDB.find({ discordBanModule: true })
@@ -176,7 +192,6 @@ module.exports = {
                   }
                   if (!discordid) discordid = `N/A`
                   if (!realm) realm = `N/A`
-                  await interaction.deferReply()
                       authenticate(`${process.env.EMAIL}`, `${process.env.PASSWORD}`)
                       .then(response => {
                       XboxLiveAPI.getPlayerXUID(
@@ -198,7 +213,7 @@ module.exports = {
                           }
                           if (!xuid) xuid = 'N/A'
                           const alreadyAdded = await hackerDB.find({gamertag: gamertag})
-                          if (!alreadyAdded) return await interaction.editReply({content: `The user with the gamertag: **${gamertag}** is already in the database!`, ephemeral: true})
+                          if (!alreadyAdded) return await interaction.reply({content: `The user with the gamertag: **${gamertag}** is already in the database!`, ephemeral: true})
                           const databaseEmbed = {
                               color: 946466,
                               title: 'Player added to the Realms+ Hacker Database (RHD)',
@@ -326,10 +341,14 @@ module.exports = {
                                       status: 'online',
                                     });
                                    const id2 = interaction.client.channels.cache.get(`1059559606222856202`)
-                                   id2.send({ embeds: [databaseEmbed] });
-                                   id.send({ embeds: [dbLog] });
-                                    return await interaction.editReply({
-                                      content: `Successfully added **${gamertag}** to the Realms+ Hacker Database (RHD)!`,
+                                   id2.send({ embeds: [databaseEmbed] }).catch((error) => {
+                                      return console.log(error)
+                                    })
+                                   id.send({ embeds: [dbLog] }).catch((error) => {
+                                    return console.log(error)
+                                  })
+                                    return await interaction.reply({
+                                      content: `<:yes:1070502230203039744> Successfully added **${gamertag}** to the Realms+ Hacker Database (RHD)!`,
                                       ephemeral: true
                                     })
                         }).catch( async error => {
@@ -338,12 +357,10 @@ module.exports = {
                       }).catch( async error => {
                         return console.log(error)
                       })
-              }).catch( async error => {
-                return console.log(error)
-              })
+                                  }
                 } else if (databaseType === 'discord') {
-                  if (!userData.isAdmin) return await interaction.reply({ content: `Invalid Permission! You can not add to the Realms+ Discord User Database (RDUD)!`, ephemeral: true})
-                  const discordDbidGen = crypto.randomBytes(15).toString('hex')
+                  if (!userData.databasePerms) return await interaction.reply({ content: `Invalid Permission! You can not add to the Realms+ Discord User Database (RDUD)!`, ephemeral: true})
+                  var discordDbidGen = crypto.randomBytes(15).toString('hex')
                     const discordAddModal = new ModalBuilder()
                     .setCustomId('discordAddModal')
                     .setTitle('Add a user to the Discord User Database');
@@ -365,21 +382,31 @@ module.exports = {
                 const actionRow2 = new ActionRowBuilder().addComponents(reasonInput);
                 discordAddModal.addComponents(actionRow1, actionRow2);
                 await interaction.showModal(discordAddModal);
-              const filter = (interaction) => interaction.customId === 'discordAddModal';
-              await interaction.awaitModalSubmit({ filter, time: 999999 })
-                .then(async interaction => 
-                {
-                    var discordID = interaction.fields.getTextInputValue('discordIdInput');
-                    var reason = interaction.fields.getTextInputValue('reasonInput');
-                    let user = await interaction.client.users.fetch(`${discordID}`).catch(async () => {
-                      return await interaction.reply({ content: `There was an error with this command, try again!`, ephemeral: true})
+                const submitted = await interaction.awaitModalSubmit({
+                  // Timeout after a minute of not receiving any valid Modals
+                  time: 99999,
+                  // Make sure we only accept Modals from the User who sent the original Interaction we're responding to
+                  filter: i => i.user.id === interaction.user.id && i.customId === 'discordAddModal'
+                }).catch(error => {
+                  // Catch any Errors that are thrown (e.g. if the awaitModalSubmit times out after 60000 ms)
+                  console.error(error)
+                  return null
+                })
+                if (submitted) {
+                    var discordID = submitted.fields.getTextInputValue('discordIdInput');
+                    var reason = submitted.fields.getTextInputValue('reasonInput');
+                    if (discordID) {
+                    var user = await interaction.client.users.fetch(`${discordID}`).catch(async (error) => {
+                      return await interaction.reply({content: `Couldn't find a user with the Discord ID of: **${discordID}**!`, ephemeral: true})
                     })
-                    if (!user) return await interaction.reply({content: `Couldn't find a user with the Discord ID of: **${discordID}**!`, ephemeral: true})
+                  }
                     let discordData = await discordDB.findOne({ userID: discordID })
-                    if (discordData) return await interaction.reply({ content: `This user is already in the Realms+ Discord User Database (RDUD)!`, ephemeral: true })
+                    if (discordData !== null) return await interaction.reply({ content: `This user is already in the Realms+ Discord User Database (RDUD)!`, ephemeral: true })
                       let discordUser = await discordDB.findOne({ userID: discordID })
                       if (!discordUser) {
-                        newUser = await discordDB.create({userID: discordID,dbid: discordDbidGen,reason: `${reason}`});newUser.save().catch()
+                        newUser = await discordDB.create({userID: discordID,dbid: discordDbidGen,reason: `${reason}`});newUser.save().catch(() => {
+                        return
+                      })
                         discordUser = await discordDB.findOne({ userID: discordID })
                       }
                       // let serversWithModule = await serverDB.find({ discordBanModule: true })
@@ -502,17 +529,19 @@ module.exports = {
                         },
                       };
                              const id2 = interaction.client.channels.cache.get(`1066483648343330816`)
-                             id2.send({ embeds: [databaseEmbed] });
-                             id.send({ embeds: [databaseAdd] });
-                             await interaction.reply({ content: `Successfully added **${user.tag}・${discordID}** to the Realms+ Discord User Database (RDUD)!`, ephemeral: true })
-                             return await discordDB.collection.insertOne({ 
+                             id2.send({ embeds: [databaseEmbed] }).catch(() => {
+                                return interaction.reply(`Error! Try again!`)
+                              })
+                             id.send({ embeds: [databaseAdd] }).catch(() => {
+                              return interaction.reply(`Error! Try again!`)
+                            })
+                             await discordDB.collection.insertOne({ 
                               userID: `${discordID}`,
                               dbid: `${discordDbidGen}`,
                               reason: `${reason}`,
-                              });
-                }).catch( async submitted => {
-                  return
-                })
+                              }).catch(error)
+                              return await interaction.reply({ content: `<:yes:1070502230203039744> Successfully added **${user.tag}・${discordID}** to the Realms+ Discord User Database (RDUD)!`, ephemeral: true })
+                                            }
                 }
             }
             if (interaction.options.getSubcommand() === 'report') {
@@ -563,15 +592,22 @@ module.exports = {
             const actionRow5 = new ActionRowBuilder().addComponents(proofInput);
             reportModal.addComponents(actionRow1, actionRow2, actionRow3,actionRow4 , actionRow5);
             await interaction.showModal(reportModal);
-            const filter = (interaction) => interaction.customId === 'reportModal';
-            interaction.awaitModalSubmit({ filter, time: 999999 })
-              .then(async interaction => 
-              {
-                    let gamertag = interaction.fields.getTextInputValue('gamertagInput');
-                    let discordid = interaction.fields.getTextInputValue('discordIdInput');
-                    let realm = interaction.fields.getTextInputValue('realmInput');
-                    let reason = interaction.fields.getTextInputValue('reasonInput');
-                    let proof = interaction.fields.getTextInputValue('proofInput');
+            const submitted = await interaction.awaitModalSubmit({
+              // Timeout after a minute of not receiving any valid Modals
+              time: 99999,
+              // Make sure we only accept Modals from the User who sent the original Interaction we're responding to
+              filter: i => i.user.id === interaction.user.id && i.customId === 'reportModal',
+            }).catch(error => {
+              // Catch any Errors that are thrown (e.g. if the awaitModalSubmit times out after 60000 ms)
+              console.error(error)
+              return null
+            })
+            if (submitted) {
+                    let gamertag = submitted.fields.getTextInputValue('gamertagInput');
+                    let discordid = submitted.fields.getTextInputValue('discordIdInput');
+                    let realm = submitted.fields.getTextInputValue('realmInput');
+                    let reason = submitted.fields.getTextInputValue('reasonInput');
+                    let proof = submitted.fields.getTextInputValue('proofInput');
                     const alreadyAdded = await hackerDB.find({gamertag: gamertag})
                     if (alreadyAdded === true) return await interaction.reply({content: `The user with the gamertag: **${gamertag}** is already in the database!`, ephemeral: true})
                     if (!discordid) discordid = `N/A`
@@ -660,23 +696,49 @@ module.exports = {
                           icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                         },
                       };
+                      // const row_report = new ActionRowBuilder()
+                      // .addComponents(
+                      //     new ButtonBuilder()
+                      //     .setCustomId(`yes`)
+                      //     .setEmoji(`<:yes:1070502230203039744>`)
+                      //     .setLabel('Accept')
+                      //     .setStyle(ButtonStyle.Success),
+                      //     new ButtonBuilder()
+                      //     .setCustomId(`no`)
+                      //     .setEmoji(`❌`)
+                      //     .setLabel('Decline')
+                      //     .setStyle(ButtonStyle.Danger),
+                      // )
                       const id2 = interaction.client.channels.cache.get(`1061144118752989344`)
-                      id2.send({ embeds: [reportEmbed] });
+                      const reportid = crypto.randomBytes(15).toString('hex')
+                      id2.send({ content: `Report ID: **${reportid}**`, embeds: [reportEmbed] }).catch(() => {
+                        return
+                      })
+                      await reportDB.collection.insertOne({ 
+                        serverID: `${interaction.guild.id}`,
+                        authorID: `${interaction.user.id}`,
+                        gamertag: `${gamertag}`,
+                        xuid: `${xuid}`,
+                        discord: `${discordid}`,
+                        dbid: `${dbid}`,
+                        realm: `${realm}`,
+                        reason: `${reason}`,
+                        proof: `${proof}`,
+                        reportID: `${reportid}`,
+                        });
                       id.send({ embeds: [reportLog] });
                       await userDB.findOneAndUpdate({
-                        userDB: interaction.user.id
+                        userDB: `${interaction.user.id}`
                     }, {
                         $inc: {
                             reportCount: 1,
                         }
                     })
                       return await interaction.reply({
-                        content: `Successfully reported **${gamertag}**! The report will be reviewed by the ARAS Team shortly.`,
+                        content: `<:yes:1070502230203039744> Successfully reported **${gamertag}**! The report will be reviewed by the ARAS Team shortly.`,
                         ephemeral: true
                       });
-            }).catch( async submitted => {
-              return
-            })
+                    }
               }
               if (databaseType === 'discord') {
                 const reportDiscordModal = new ModalBuilder()
@@ -708,13 +770,20 @@ module.exports = {
             const actionRow3 = new ActionRowBuilder().addComponents(proofInput);
             reportDiscordModal.addComponents(actionRow1, actionRow2, actionRow3);
             await interaction.showModal(reportDiscordModal);
-            const filter = (interaction) => interaction.customId === 'reportDiscordModal';
-            interaction.awaitModalSubmit({ filter, time: 999999 })
-              .then(async interaction => 
-              {
-                    let discordID = interaction.fields.getTextInputValue('discordIdInput');
-                    let reason = interaction.fields.getTextInputValue('reasonInput');
-                    let proof = interaction.fields.getTextInputValue('proofInput');
+            const submitted = await interaction.awaitModalSubmit({
+              // Timeout after a minute of not receiving any valid Modals
+              time: 99999,
+              // Make sure we only accept Modals from the User who sent the original Interaction we're responding to
+              filter: i => i.user.id === interaction.user.id && i.customId === 'reportDiscordModal',
+            }).catch(error => {
+              // Catch any Errors that are thrown (e.g. if the awaitModalSubmit times out after 60000 ms)
+              console.error(error)
+              return null
+            })
+            if (submitted) {
+                    let discordID = submitted.fields.getTextInputValue('discordIdInput');
+                    let reason = submitted.fields.getTextInputValue('reasonInput');
+                    let proof = submitted.fields.getTextInputValue('proofInput');
                     if (typeof Number(discordID) != Number) return await interaction.reply({ content: `There was an error with this command, try again!`, ephemeral: true})
                     let user = await interaction.client.users.fetch(`${discordID}`);
                     if (!user) return await interaction.reply({content: `Couldn't find a user with the Discord ID of: **${discordID}**!`, ephemeral: true})
@@ -795,15 +864,19 @@ module.exports = {
                         },
                       };
                       const id2 = interaction.client.channels.cache.get(`1061144118752989344`)
-                      id2.send({ embeds: [reportEmbed] });
-                      id.send({ embeds: [reportLog] });
+                      id2.send({ embeds: [reportEmbed] }).catch((error) => {
+                        return console.log(error)
+                      })
+                      id.send({ embeds: [reportLog] }).catch((error) => {
+                        return console.log(error)
+                      })
                       return await interaction.reply({
-                        content: `Successfully reported **${user.tag}・${discordID}**! The report will be reviewed by the ARAS Team shortly.`,
-                        ephemeral: true
-                      });
-            }).catch( async submitted => {
-              return
-            })
+                        content: `<:yes:1070502230203039744> Successfully reported **${user.tag}・${discordID}**! The report will be reviewed by the ARAS Team shortly.`,
+                        ephemeral: true,
+                      }).catch((error) => {
+                        return console.log(error)
+                      })
+                  }
               }
             }
             if (interaction.options.getSubcommand() === 'search') {
@@ -846,14 +919,21 @@ module.exports = {
             const actionRow4 = new ActionRowBuilder().addComponents(profileInput);
             searchModal.addComponents(actionRow1, actionRow2, actionRow3,actionRow4);
             await interaction.showModal(searchModal);
-            const filter = (interaction) => interaction.customId === 'searchModal';
-            interaction.awaitModalSubmit({ filter, time: 999999 })
-              .then(async interaction => 
-              {
-                    let gamertag = interaction.fields.getTextInputValue('gamertagInput');
-                    let discordid = interaction.fields.getTextInputValue('discordIdInput');
-                    let realm = interaction.fields.getTextInputValue('realmInput');
-                    let profileid = interaction.fields.getTextInputValue('profileInput');
+            const submitted = await interaction.awaitModalSubmit({
+              // Timeout after a minute of not receiving any valid Modals
+              time: 99999,
+              // Make sure we only accept Modals from the User who sent the original Interaction we're responding to
+              filter: i => i.user.id === interaction.user.id && i.customId === 'searchModal',
+            }).catch(error => {
+              // Catch any Errors that are thrown (e.g. if the awaitModalSubmit times out after 60000 ms)
+              console.error(error)
+              return null
+            })
+            if (submitted) {
+                    let gamertag = submitted.fields.getTextInputValue('gamertagInput');
+                    let discordid = submitted.fields.getTextInputValue('discordIdInput');
+                    let realm = submitted.fields.getTextInputValue('realmInput');
+                    let profileid = submitted.fields.getTextInputValue('profileInput');
                     if (!gamertag && !discordid && !realm && !profileid) return await interaction.reply({content: `You must choose atleast one option!`, ephemeral: true})
                     if (!gamertag && !discordid && realm) {
                       realmProfile = await realmProfileDB.findOne({name: realm})
@@ -907,8 +987,10 @@ module.exports = {
                               icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                             },
                           };
-                          await interaction.reply({ content: `Successfully found the realm profile for **${realmProfile.name}**`, ephemeral: true})
-                          return interaction.channel.send({ embeds: [searchEmbed] });
+                          await interaction.reply({ content: `<:yes:1070502230203039744> Successfully found the realm profile for **${realmProfile.name}**`, ephemeral: true})
+                          return interaction.channel.send({ embeds: [searchEmbed] }).catch(() => {
+      return
+    })
                         });
                         } else if (gamertag || discordid) {
                           searchEmbed = {
@@ -953,12 +1035,12 @@ module.exports = {
                               icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                             },
                           };
-                          await interaction.reply({content: `Successfully found **${hackerProfile.gamertag}** in the hacker database! They were banned for **${hackerProfile.reason}**!`, ephemeral: true})
-                          return interaction.channel.send({ embeds: [searchEmbed] });
+                          await interaction.reply({content: `<:yes:1070502230203039744> Successfully found **${hackerProfile.gamertag}** in the hacker database! They were banned for **${hackerProfile.reason}**!`, ephemeral: true})
+                          return interaction.channel.send({ embeds: [searchEmbed] }).catch(() => {
+      return
+    })
                         }
-              }).catch( async submitted => {
-                return
-              })
+                                    }
               } else if (databaseType === 'discord') {
               const discordSearchModal = new ModalBuilder()
               .setCustomId('discordSearchModal')
@@ -977,7 +1059,7 @@ module.exports = {
           interaction.awaitModalSubmit({ filter, time: 999999 })
             .then(async interaction => 
             {
-                  let discordID = interaction.fields.getTextInputValue('discordIdInput');
+                  let discordID = submitted.fields.getTextInputValue('discordIdInput');
                   if (typeof Number(discordID) != Number) return await interaction.reply({ content: `There was an error with this command, try again!`, ephemeral: true})
                   let user = await interaction.client.users.fetch(`${discordID}`);
                   if (!user) return await interaction.reply({content: `Couldn't find a user with the Discord ID of: **${discordID}**!`, ephemeral: true})
@@ -1015,20 +1097,22 @@ module.exports = {
                             icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                           },
                         };
-                        interaction.channel.send({ embeds: [searchEmbed] });
-                        return await interaction.reply({ content: `Successfully found **${user.tag}・${user.id}**! They were added for **${userProfile.reason}**!`, ephemeral: true})
+                        interaction.channel.send({ embeds: [searchEmbed] }).catch(() => {
+      return
+    })
+                        return await interaction.reply({ content: `<:yes:1070502230203039744> Successfully found **${user.tag}・${user.id}**! They were added for **${userProfile.reason}**!`, ephemeral: true})
             }).catch( async submitted => {
               return
             })
           }
         }
             if (interaction.options.getSubcommand() === 'remove') {
-                if (!userData.isAdmin) return await interaction.reply({ content: `Invalid Permission! You can not remove from the database!`, ephemeral: true})
+                if (!userData.databasePerms) return await interaction.reply({ content: `Invalid Permission! You can not remove from the database!`, ephemeral: true})
                 const databaseType = interaction.options.getString('database')
                 if (databaseType === 'realm') {
                   const dbid = interaction.options.getString('database-id')
                   let hackerData = await hackerDB.findOne({ dbid: dbid })
-                  if (!hackerData) return await interaction.reply({ content: `This user isn't in the database!`, ephemeral: true })
+                  if (!hackerData) return interaction.reply({ content: `This user isn't in the database!`, ephemeral: true })
                 const removeLog = {
                     color: 946466,
                     title: 'Player removed from the RHD database',
@@ -1087,14 +1171,14 @@ module.exports = {
                     }
                     });
                   id.send({ embeds: [removeLog] });
-                  await interaction.reply({ content: `Successfully removed **${hackerData.gamertag}** from the RHD database!`, ephemeral: true })
+                  await interaction.reply({ content: `<:yes:1070502230203039744> Successfully removed **${hackerData.gamertag}** from the RHD database!`, ephemeral: true })
                   return hackerDB.deleteOne({
                     dbid: dbid
                   })
                 } else if (databaseType === 'discord') {
                     const dbid = interaction.options.getString('database-id')
                     let hackerData = await discordDB.findOne({ dbid: dbid })
-                    if (!hackerData) return await interaction.reply({ content: `This user isn't in the database!`, ephemeral: true })
+                    if (!hackerData) return interaction.reply({ content: `This user isn't in the database!`, ephemeral: true })
                     let user = await interaction.client.users.fetch(`${hackerData.userID}`);
                   const removeLog = {
                       color: 946466,
@@ -1139,7 +1223,7 @@ module.exports = {
                       },
                     };
                     id.send({ embeds: [removeLog] });
-                    await interaction.reply({ content: `Successfully removed **${user.tag}・${user.id}** from the RDUD database!`, ephemeral: true })
+                    await interaction.reply({ content: `<:yes:1070502230203039744> Successfully removed **${user.tag}・${user.id}** from the RDUD database!`, ephemeral: true })
                     return discordDB.deleteOne({
                       dbid: dbid
                     })
@@ -1198,7 +1282,9 @@ module.exports = {
                   },
                 };
                 await id.send({ embeds: [lbLog] });
-                return await interaction.reply({ embeds: [lbEmbed] });
+                return await interaction.reply({ embeds: [lbEmbed] }).catch(() => {
+      return
+    })
               }
               if (interaction.options.getString('type') === 'admin') {
                 if (!userData.isAdmin) return await interaction.reply({content: `Invalid Permission! You must be a Realms+ Admin to run this command!`, ephemeral: true})
@@ -1253,7 +1339,9 @@ module.exports = {
                   },
                 };
                 await id.send({ embeds: [lbLog] });
-                return await interaction.reply({ embeds: [lbEmbed] });
+                return await interaction.reply({ embeds: [lbEmbed] }).catch(() => {
+      return
+    })
               }
               if (interaction.options.getString('type') === 'user') {
                 let result = await userDB.find({});
@@ -1271,7 +1359,9 @@ module.exports = {
                 let desc = ""
                 for (let i = 0; i < listSort.length; i++) {
                   let id = listSort[i].userID
-                  const user = await interaction.client.users.fetch(`${id}`).catch()
+                  const user = await interaction.client.users.fetch(`${id}`).catch(() => {
+      return
+    })
                   let name = user.tag
                   let reportNumber = listSort[i].reportCount
                   desc += `**${i + 1}.** __${name}__・__${id}__\nReport Count: **${reportNumber}**\n\n`
@@ -1309,7 +1399,9 @@ module.exports = {
                   },
                 };
                 await id.send({ embeds: [lbLog] });
-                return await interaction.reply({ embeds: [lbEmbed] });
+                return await interaction.reply({ embeds: [lbEmbed] }).catch(() => {
+      return
+    })
               }
           }
 	} catch (error) {

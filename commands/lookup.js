@@ -28,12 +28,16 @@ module.exports = {
                         await interaction.deferReply({ content: `Loading <a:loading:1069385540077637742>`, ephemeral: true });
                         let userData = await userDB.findOne({ userID: interaction.user.id })
                         if (!userData) {
-                          newUser = await userDB.create({userID: interaction.user.id,gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false,reportCount: 0,botBan: false,isAdmin: false});newUser.save().catch()
+                          newUser = await userDB.create({userID: interaction.user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch(() => {
+      return
+    })
                           userData = await userDB.findOne({ userID: interaction.user.id })
                         }
                         let serverData = await serverDB.findOne({ serverID: interaction.guild.id })
                         if (!serverData) {
-                          newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,logsChannel: '0',gamertag: '0',addCount: 0, basicPlan: false,arasPlan: false,arasPlusPlan: false});newServer.save()
+                          newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,configs: [{banLogs: '0', automod: '0', logsChannel: '0', relayChannel: '0', adminRoleID: '0', moderatorRoleID: '0'}],addCount: 0, realmChatRelay: false, autobanFromDB: false, automod: false, banCommand: [{ permission: ['404'], enabled: true }], kickCommand: [{ permission: ['404'], enabled: true }], statusCommand: [{ permission: ['404'], enabled: true }], playersCommand: [{ permission: ['0'], enabled: true }], editCommand: [{ permission: ['404'], enabled: true }], worldCommand: [{ permission: ['404'], enabled: true }], permissionsCommand: [{ permission: ['404'], enabled: true }], consoleCommand: [{ permission: ['404'], enabled: true }], automodCommand: [{ permission: ['404'], enabled: true }], botCommand: [{ permission: ['404'], enabled: true }],realmID: [{ realmID: '0', name: '0'}], botConnected: false, isOpen: [{ realmID: '0', status: '0'}], realmsBans: [{ realmID: '0', banCount: '0'}], realmsKicks: [{ realmID: '0', kickCount: '0'}],realmOperators: [{ realmID: '0', operators: ['0']}],currentLogic: [{ realmID: '0', logic: '0'}]});newServer.save().catch(() => {
+      return
+    })
                           serverData = await serverDB.findOne({ serverID: interaction.guild.id })
                         }
                         // if (userData.isAdmin || userData.basicPlan || userData.arasPlan || userData.arasPlusPlan ) {
@@ -90,7 +94,9 @@ module.exports = {
                                           },
                                         };
                                         await interaction.editReply({ content: `✅ Operation Successful!`, ephemeral: true });
-                                        return await interaction.channel.send({ content: `Result found for **${interaction.user.tag}**!`, embeds: [finalEmbed] });
+                                        return await interaction.channel.send({ content: `Result found for **${interaction.user.tag}**!`, embeds: [finalEmbed] }).catch(() => {
+                                        return
+                                      })
                                       })
                                       } else {
                                         XboxLiveAPI.getPlayerXUID(
@@ -127,7 +133,9 @@ module.exports = {
                                           },
                                         };
                                         await interaction.editReply({ content: `✅ Operation Successful!`, ephemeral: true });
-                                        return await interaction.channel.send({ content: `Result found for **${interaction.user.tag}**!`, embeds: [finalEmbed] });
+                                        return await interaction.channel.send({ content: `Result found for **${interaction.user.tag}**!`, embeds: [finalEmbed] }).catch(() => {
+      return
+    })
                                       })
                                       }
                                 }).catch(async (error) => {
@@ -174,7 +182,9 @@ module.exports = {
                                           },
                                         };
                                         await interaction.editReply({ content: `✅ Operation Successful!`, ephemeral: true });
-                                        return await interaction.channel.send({ content: `Result found for **${interaction.user.tag}**!`, embeds: [finalEmbed] });
+                                        return await interaction.channel.send({ content: `Result found for **${interaction.user.tag}**!`, embeds: [finalEmbed] }).catch(() => {
+      return
+    })
                                       }
                         // } else {
                         //     return await interaction.editReply({content: `Sorry! This is a Premium Feature!\n\n**How to get access**\nTo get access to this command you need to subscribe to the Basic Plan or higher!`, ephemeral: true})

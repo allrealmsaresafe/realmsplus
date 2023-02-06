@@ -54,5 +54,5 @@ exports.run = async (message, args) => {
     user.send(`${context}`).catch(error => {
       return message.reply('Error! This usually occurs when the user has DMs off!')
     })
-    return message.reply(`Successfully sent \`${context}\` to **${user.tag}・${user.id}**!`)
+    return message.reply(`<:yes:1070502230203039744> Successfully sent \`${context}\` to **${user.tag}・${user.id}**!`)
   };

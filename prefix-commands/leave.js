@@ -3,7 +3,7 @@ const userDB = require('../models/userDB')
 exports.run = async (message, args) => {
 const guild = await message.client.guilds.fetch(`${args.toString().replaceAll(' ', '')}`).catch(error => console.log(error))
 if (!guild) return message.reply(`Couldn't find that guild!`)
-guild.leave().catch(error => console.log(error))
+guild.leave()
 const id = message.client.channels.cache.get(`1060345095347523644`)
 const logEmbed = {
   color: 946466,
@@ -44,5 +44,5 @@ const logEmbed = {
 };
 
 id.send({ embeds: [logEmbed] });
-return message.reply(`Successfully left **${guild.name}**!`)
+return message.reply(`<:yes:1070502230203039744> Successfully left **${guild.name}**!`)
 }
