@@ -39,8 +39,13 @@ module.exports = {
 				inline: true,
 			  },
 			  {
+				name: 'Website',
+				value: `[Here](https://google.com)`,
+				inline: true,
+			  },
+			  {
 				name: 'Developers',
-				value: `[Point](https://github.com/PointTheDeveloper)・[Shadowsniper784](https://github.com/Shadowsniper784)`,
+				value: `[Point](https://github.com/PointTheDeveloper)`,
 				inline: true,
 			  },
 			  {

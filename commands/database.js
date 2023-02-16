@@ -63,7 +63,7 @@ module.exports = {
             // { name: 'Most Recent Added Hackers', value: 'recent' },
           ).setRequired(true))),
 	async execute(interaction) {
-    return await interaction.reply(`This command is undergoing development! Try again later!`)
+    // return await interaction.reply(`This command is undergoing development! Try again later!`)
 		try {
       			if (mongoose.connection.readyState != 1) return await interaction.reply({ content: `Database not connected! Run the command again in 5 seconds!`, ephemeral: true})
             const id = interaction.client.channels.cache.get(`1060345095347523644`)
@@ -347,7 +347,7 @@ module.exports = {
                                    id.send({ embeds: [dbLog] }).catch((error) => {
                                     return console.log(error)
                                   })
-                                    return await interaction.reply({
+                                    return await submitted.reply({
                                       content: `<:yes:1070502230203039744> Successfully added **${gamertag}** to the Realms+ Hacker Database (RHD)!`,
                                       ephemeral: true
                                     })
@@ -357,7 +357,7 @@ module.exports = {
                       }).catch( async error => {
                         return console.log(error)
                       })
-                                  }
+                     }
                 } else if (databaseType === 'discord') {
                   if (!userData.databasePerms) return await interaction.reply({ content: `Invalid Permission! You can not add to the Realms+ Discord User Database (RDUD)!`, ephemeral: true})
                   var discordDbidGen = crypto.randomBytes(15).toString('hex')
@@ -540,7 +540,7 @@ module.exports = {
                               dbid: `${discordDbidGen}`,
                               reason: `${reason}`,
                               }).catch(error)
-                              return await interaction.reply({ content: `<:yes:1070502230203039744> Successfully added **${user.tag}・${discordID}** to the Realms+ Discord User Database (RDUD)!`, ephemeral: true })
+                              return await submitted.reply({ content: `<:yes:1070502230203039744> Successfully added **${user.tag}・${discordID}** to the Realms+ Discord User Database (RDUD)!`, ephemeral: true })
                                             }
                 }
             }
@@ -734,7 +734,7 @@ module.exports = {
                             reportCount: 1,
                         }
                     })
-                      return await interaction.reply({
+                      return await submitted.reply({
                         content: `<:yes:1070502230203039744> Successfully reported **${gamertag}**! The report will be reviewed by the ARAS Team shortly.`,
                         ephemeral: true
                       });
@@ -870,7 +870,7 @@ module.exports = {
                       id.send({ embeds: [reportLog] }).catch((error) => {
                         return console.log(error)
                       })
-                      return await interaction.reply({
+                      return await submitted.reply({
                         content: `<:yes:1070502230203039744> Successfully reported **${user.tag}・${discordID}**! The report will be reviewed by the ARAS Team shortly.`,
                         ephemeral: true,
                       }).catch((error) => {
@@ -987,10 +987,10 @@ module.exports = {
                               icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                             },
                           };
-                          await interaction.reply({ content: `<:yes:1070502230203039744> Successfully found the realm profile for **${realmProfile.name}**`, ephemeral: true})
+                          await submitted.reply({ content: `<:yes:1070502230203039744> Successfully found the realm profile for **${realmProfile.name}**`, ephemeral: true})
                           return interaction.channel.send({ embeds: [searchEmbed] }).catch(() => {
-      return
-    })
+                            return
+                          })
                         });
                         } else if (gamertag || discordid) {
                           searchEmbed = {
@@ -1035,10 +1035,10 @@ module.exports = {
                               icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
                             },
                           };
-                          await interaction.reply({content: `<:yes:1070502230203039744> Successfully found **${hackerProfile.gamertag}** in the hacker database! They were banned for **${hackerProfile.reason}**!`, ephemeral: true})
+                          await submitted.reply({content: `<:yes:1070502230203039744> Successfully found **${hackerProfile.gamertag}** in the hacker database! They were banned for **${hackerProfile.reason}**!`, ephemeral: true})
                           return interaction.channel.send({ embeds: [searchEmbed] }).catch(() => {
-      return
-    })
+                              return
+                            })
                         }
                                     }
               } else if (databaseType === 'discord') {
@@ -1100,7 +1100,7 @@ module.exports = {
                         interaction.channel.send({ embeds: [searchEmbed] }).catch(() => {
       return
     })
-                        return await interaction.reply({ content: `<:yes:1070502230203039744> Successfully found **${user.tag}・${user.id}**! They were added for **${userProfile.reason}**!`, ephemeral: true})
+                        return await submitted.reply({ content: `<:yes:1070502230203039744> Successfully found **${user.tag}・${user.id}**! They were added for **${userProfile.reason}**!`, ephemeral: true})
             }).catch( async submitted => {
               return
             })
@@ -1171,7 +1171,7 @@ module.exports = {
                     }
                     });
                   id.send({ embeds: [removeLog] });
-                  await interaction.reply({ content: `<:yes:1070502230203039744> Successfully removed **${hackerData.gamertag}** from the RHD database!`, ephemeral: true })
+                  await submitted.reply({ content: `<:yes:1070502230203039744> Successfully removed **${hackerData.gamertag}** from the RHD database!`, ephemeral: true })
                   return hackerDB.deleteOne({
                     dbid: dbid
                   })
@@ -1223,7 +1223,7 @@ module.exports = {
                       },
                     };
                     id.send({ embeds: [removeLog] });
-                    await interaction.reply({ content: `<:yes:1070502230203039744> Successfully removed **${user.tag}・${user.id}** from the RDUD database!`, ephemeral: true })
+                    await submitted.reply({ content: `<:yes:1070502230203039744> Successfully removed **${user.tag}・${user.id}** from the RDUD database!`, ephemeral: true })
                     return discordDB.deleteOne({
                       dbid: dbid
                     })
