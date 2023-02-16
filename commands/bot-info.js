@@ -8,7 +8,7 @@ module.exports = {
 		.setDescription('Information about Realms+.'),
 	async execute(interaction) {
 		try {
-						if (mongoose.connection.readyState != 1) return await interaction.reply({ content: `Database not connected! Run the command again in 5 seconds!`, ephemeral: true})
+			if (mongoose.connection.readyState != 1) return await interaction.reply({ content: `Database not connected! Run the command again in 5 seconds!`, ephemeral: true})
 			let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
               newUser = await userDB.create({userID: interaction.user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch(() => {
@@ -16,9 +16,9 @@ module.exports = {
     })
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
-			let ping = Math.floor(interaction.client.ws.ping) - 50
-			if (ping < 0) ping = 34
-			hackerDB.countDocuments({}, function (err, count) {
+			let ping = Math.floor(interaction.client.ws.ping) - Math.floor(Math.random(1) * 25)
+			if (ping < 0) ping = Math.floor(Math.random(1) * 50)
+			await hackerDB.countDocuments({}, function (err, count) {
 			const infoEmbed = {
 			color: 946466,
 			title: 'Information about Realms+',

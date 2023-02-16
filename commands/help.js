@@ -88,7 +88,7 @@ module.exports = {
                         i.reply({ content: `This button is not for you!`, ephemeral: true });
                     }
                 });
-                collector.on('end', collected => {
+                collector.on('end', () => {
                 });
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
