@@ -6,6 +6,7 @@ module.exports = {
 	name: Events.GuildDelete,
 	once: false,
 	async execute(guild) {
+    try {
     			if (mongoose.connection.readyState != 1) return
     const id = await guild.client.channels.fetch(`1060345116000268428`)
     let userData = await userDB.findOne({ userID: guild.ownerId })
@@ -32,6 +33,11 @@ module.exports = {
         icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
       },
     };
-    id.send({ embeds: [leaveLogEmbed] })
+    return id.send({ embeds: [leaveLogEmbed] })
+  } catch (error) {
+    const errorChannel = await message.client.channels.fetch('1060347445722230867')
+    await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **Can't get Guild Name**\nUser Who Found It: **${message.author.tag}**・**${message.author.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **guildDelete event has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
+    console.log(error)
+  }
 	},
 };

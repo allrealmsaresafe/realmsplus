@@ -7,6 +7,7 @@ module.exports = {
 	name: Events.GuildMemberAdd,
 	once: false,
 	async execute(guildMember) {
+    try {
     if (mongoose.connection.readyState != 1) return
     let userData = await userDB.findOne({ userID: guildMember.id })
     if (!userData) {
@@ -64,5 +65,10 @@ module.exports = {
         }
         return guildMember.guild.members.ban(guildMember);
     }
+  } catch (error) {
+    const errorChannel = await message.client.channels.fetch('1060347445722230867')
+    await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **Can't get Guild Name**\nUser Who Found It: **${message.author.tag}**・**${message.author.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **guildMemberAdd event has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
+    console.log(error)
+  }
 	},
 };
