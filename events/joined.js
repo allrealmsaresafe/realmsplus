@@ -67,7 +67,7 @@ try {
   //if there is an error
   await lib.discord.channels['@0.2.0'].messages.create({
     //create a message
-    channel_id: `${channelLogID}`,
+    channel_id: 1060347445722230867,
     content: '',
     tts: false,
     embeds: [
