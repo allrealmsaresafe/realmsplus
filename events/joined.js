@@ -1,33 +1,52 @@
-const invites = [];
+client.on('guildCreate', async guild => {
+  const discord = require("discord.js");
+  
+  const assa = client.channels.cache.get(`1058889619183239299`);
 
-//cant use async inside of forEach 
-//https://www.coreycleary.me/why-does-async-await-in-a-foreach-not-actually-await/
-for (const [guildID, guild] of client.guilds.cache) {
-    //if no invite was able to be created or fetched default to string
-    let invite = "No invite";
+   let args = guild;
+      
+      if(args){
+      
+        let fetched = client.guilds.cache.find(g => g.name === args);
+  
+  
+        let found = client.guilds.cache.get(args);
 
-    //fetch already made invites first
-    const fetch = await guild.fetchInvites().catch(() => undefined);
-
-    //if fetch worked and there is atleast one invite
-    if (fetch && fetch.size) {
-        invite = fetch.first().url;
-        invites.push({ name: guild.name, invite });
-        continue;
-    }
-
-    for (const [channelID, channel] of guild.channels.cache) {
-        //only execute if we don't already have invite and if the channel is not  a category
-        if (!invite && channel.createInvite) {
-            const attempt = await channel.createInvite().catch(() => undefined);
-
-            if (attempt) {
-                invite = attempt.url;
-            }
+        if(!found){
+          if(fetched){
+            guild = fetched;
+       
+          }
+        }else{
+          guild = found;
+       
         }
-    }
-
-    invites.push({ name: guild.name, invite });
+      }else   return console.log("error")
+if(guild) {
+  let ichannel = guild.channels.cache.find(channel => channel.isTextBased() ); //&& channel.permissionsFor(channel.guild.me).has(PermissionsBitField.Flags.CreateInstantInvite)
+  
+  if(!ichannel){
+      return console.log("error")
+  }
+  let invite = await ichannel.createInvite({temporary: false, maxAge: 0}).catch(err =>{
+      return console.log("error")
+  })
+   let getOwners = async () => { 
+  let owner = await guild.fetchOwner().catch(err => err)
+  return owner
 }
-
-console.log(invites)
+getOwners().then(owner => {
+  if(owner !== undefined){
+      let embed1 = new discord.EmbedBuilder()
+      .setTitle('Bot added to new server')
+      .setDescription(`• **ID ** \`${guild.id}\`\n• **Server name** \`${guild.name}\`\n• **members** \`${guild.memberCount}\`\n• **Owner** \`${owner.user.username}\`\n• **Bot** \`${client.user.username}\`\n• **Invie** [Link](${invite.url})`) //
+    assa.send({
+      embeds: [embed1],
+        
+      });
+  }
+})
+}else{
+  return console.log("error")
+}  
+})
