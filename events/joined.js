@@ -1,7 +1,7 @@
 client.on('guildCreate', async guild => {
   const discord = require("discord.js");
   
-  const assa = client.channels.cache.get(`1058889619183239299`);
+  const assa = client.channels.cache.get(`1060345116000268428`);
 
    let args = guild;
       
