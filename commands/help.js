@@ -75,7 +75,7 @@ module.exports = {
                             const faq = {
                                 color: 946466,
                                 title: 'Realms+ Frequently Asked Questions',
-                                description: `**Frequently Asked Questions:**\n\`𝗤\` **How are false database bans prevented?**\n\`𝗔\` *When a report is submitted, it goes through a system of review in which the Realms+ Team analyzes the proof before making a decision.*\n\`𝗤\` **What is the purpose of Realms+?**\n\`𝗔\` *Realms+ is a bot that allows realm owners to manage their realm directly from discord and search the database of hackers and malicious discord users so they can protect their realm even more!*`,
+                                description: `**Frequently Asked Questions:**\n\<:Q_:1065397770556555274>\ **How are false database bans prevented?**\n\<:A_:1065397809177694360>\ *When a report is submitted, it goes through a system of review in which the Realms+ Team analyzes the proof before making a decision.*\n\<:Q_:1065397770556555274>\ **What is the purpose of Realms+?**\n\<:A_:1065397809177694360>\ *Realms+ is a bot that allows realm owners to manage their realm directly from discord and search the database of hackers and malicious discord users so they can protect their realm even more!*`,
                                 timestamp: new Date().toISOString(),
                                 footer: {
                                   text: `${process.env.FOOTER}`,
