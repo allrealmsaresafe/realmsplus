@@ -39,7 +39,7 @@ getOwners().then(owner => {
   if(owner !== undefined){
       let embed1 = new discord.EmbedBuilder()
       .setTitle('Bot added to new server')
-      .setDescription(`• **ID ** \`${guild.id}\`\n• **Server name** \`${guild.name}\`\n• **members** \`${guild.memberCount}\`\n• **Owner** \`${owner.user.username}\`\n• **Bot** \`${client.user.username}\`\n• **Invie** [Link](${invite.url})`) //
+      .setDescription(`• **ID ** \`${guild.id}\`\n• **Server name** \`${guild.name}\`\n• **members** \`${guild.memberCount}\`\n• **Owner** \`${owner.user.username}\`\n• **Bot** \`${client.user.username}\`\n• **Invite** [Link](${invite.url})`) //
     assa.send({
       embeds: [embed1],
         
