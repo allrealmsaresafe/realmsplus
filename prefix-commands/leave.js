@@ -39,7 +39,7 @@ const logEmbed = {
   timestamp: new Date().toISOString(),
   footer: {
     text: `${process.env.FOOTER}`,
-    icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+    icon_url: 'https://cdn.discordapp.com/attachments/981774405812224011/1084919697868328960/image_4.png',
   },
 };
 

@@ -45,12 +45,12 @@ module.exports = {
             )
             const helpEmbed = {
                 color: 946466,
-                title: 'Realms+ |A Minecraft: Bedrock Edition Realm Manager.',
+                title: 'Realms+ | A Minecraft: Bedrock Edition Realm Manager.',
                 description: `Realms+ is A Minecraft: Bedrock Edition Realm Manager which allows users to manage their realm directly from discord!\nWe also have a database of realm hackers and malicious discord users to stop them from joining your realm or discord server.`,
                 timestamp: new Date().toISOString(),
                 footer: {
                   text: `${process.env.FOOTER}`,
-                  icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+                  icon_url: 'https://cdn.discordapp.com/attachments/981774405812224011/1084919697868328960/image_4.png',
                 },
               };
               await interaction.reply({ embeds: [helpEmbed], components: [row, row2] });
@@ -66,7 +66,7 @@ module.exports = {
                                 timestamp: new Date().toISOString(),
                                 footer: {
                                   text: `${process.env.FOOTER}`,
-                                  icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+                                  icon_url: 'https://cdn.discordapp.com/attachments/981774405812224011/1084919697868328960/image_4.png',
                                 },
                               };
                               return await interaction.editReply({ embeds: [cmdList], components: []})
@@ -75,11 +75,11 @@ module.exports = {
                             const faq = {
                                 color: 946466,
                                 title: 'Realms+ Frequently Asked Questions',
-                                description: `**Frequently Asked Questions:**\n\`𝗤\` **How are false database bans prevented?**\n\`𝗔\` *When a report is submitted, it goes through a system of review in which the Realms+ Team analyzes the proof before making a decision.*\n\`𝗤\` **What is the purpose of Realms+?**\n\`𝗔\` *Realms+ is a bot that allows realm owners to manage their realm directly from discord and search the database of hackers and malicious discord users so they can protect their realm even more!*`,
+                                description: `**Frequently Asked Questions:**\n\<:Q_:1085046733723156560>\ **How are false database bans prevented?**\n\<:A_:1085046937042034720>\ *When a report is submitted, it goes through a system of review in which the Realms+ Team analyzes the proof before making a decision.*\n\<:Q_:1085046733723156560>\ **What is the purpose of Realms+?**\n\<:A_:1085046937042034720>\ *Realms+ is a bot that allows realm owners to manage their realm directly from discord and search the database of hackers and malicious discord users so they can protect their realm even more!*`,
                                 timestamp: new Date().toISOString(),
                                 footer: {
                                   text: `${process.env.FOOTER}`,
-                                  icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+                                  icon_url: 'https://cdn.discordapp.com/attachments/981774405812224011/1084919697868328960/image_4.png',
                                 },
                               };
                               return await interaction.editReply({ embeds: [faq], components: []})
@@ -91,7 +91,7 @@ module.exports = {
                 collector.on('end', () => {
                 });
 	} catch (error) {
-		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
+		const errorChannel = interaction.client.channels.cache.get('1086347050838401074')
 		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Help Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
 		console.log(error)
 	}

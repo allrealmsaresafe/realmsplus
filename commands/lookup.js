@@ -28,16 +28,16 @@ module.exports = {
                         await interaction.deferReply({ content: `Loading <a:loading:1069385540077637742>`, ephemeral: true });
                         let userData = await userDB.findOne({ userID: interaction.user.id })
                         if (!userData) {
-                          newUser = await userDB.create({userID: interaction.user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch(() => {
-      return
-    })
+                          newUser = await userDB.create({userID: interaction.user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch((error) => {
+                        return console.log(error)
+                      })
                           userData = await userDB.findOne({ userID: interaction.user.id })
                         }
                         let serverData = await serverDB.findOne({ serverID: interaction.guild.id })
                         if (!serverData) {
-                          newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,configs: [{banLogs: '0', automod: '0', logsChannel: '0', relayChannel: '0', adminRoleID: '0', moderatorRoleID: '0'}],addCount: 0, realmChatRelay: false, autobanFromDB: false, automod: false, banCommand: [{ permission: ['404'], enabled: true }], kickCommand: [{ permission: ['404'], enabled: true }], statusCommand: [{ permission: ['404'], enabled: true }], playersCommand: [{ permission: ['0'], enabled: true }], editCommand: [{ permission: ['404'], enabled: true }], worldCommand: [{ permission: ['404'], enabled: true }], permissionsCommand: [{ permission: ['404'], enabled: true }], consoleCommand: [{ permission: ['404'], enabled: true }], automodCommand: [{ permission: ['404'], enabled: true }], botCommand: [{ permission: ['404'], enabled: true }],realmID: [{ realmID: '0', name: '0'}], botConnected: false, isOpen: [{ realmID: '0', status: '0'}], realmsBans: [{ realmID: '0', banCount: '0'}], realmsKicks: [{ realmID: '0', kickCount: '0'}],realmOperators: [{ realmID: '0', operators: ['0']}],currentLogic: [{ realmID: '0', logic: '0'}]});newServer.save().catch(() => {
-      return
-    })
+                          newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,configs: [{banLogs: '0', automod: '0', logsChannel: '0', relayChannel: '0', adminRoleID: '0', moderatorRoleID: '0'}],addCount: 0, realmChatRelay: false, autobanFromDB: false, automod: false, banCommand: [{ permission: ['404'], enabled: true }], kickCommand: [{ permission: ['404'], enabled: true }], statusCommand: [{ permission: ['404'], enabled: true }], playersCommand: [{ permission: ['0'], enabled: true }], editCommand: [{ permission: ['404'], enabled: true }], worldCommand: [{ permission: ['404'], enabled: true }], permissionsCommand: [{ permission: ['404'], enabled: true }], consoleCommand: [{ permission: ['404'], enabled: true }], automodCommand: [{ permission: ['404'], enabled: true }], botCommand: [{ permission: ['404'], enabled: true }],realmID: [{ realmID: '0', name: '0'}], botConnected: false, isOpen: [{ realmID: '0', status: '0'}], realmsBans: [{ realmID: '0', banCount: '0'}], realmsKicks: [{ realmID: '0', kickCount: '0'}],realmOperators: [{ realmID: '0', operators: ['0']}],currentLogic: [{ realmID: '0', logic: '0'}]});newServer.save().catch((error) => {
+                        return console.log(error)
+                      })
                           serverData = await serverDB.findOne({ serverID: interaction.guild.id })
                         }
                         // if (userData.isAdmin || userData.basicPlan || userData.arasPlan || userData.arasPlusPlan ) {
@@ -74,12 +74,16 @@ module.exports = {
                                         let Bio = settings[4].value
                                         Bio ? Bio = Bio : Bio = 'No Bio.'
                                         let altPercent = 0
-                                        if (Gamerscore <= 600 && Gamerscore > 325) altPercent = 14.76
-                                        if (Gamerscore <= 325 && Gamerscore > 200) altPercent = 36.98
-                                        if (Gamerscore <= 200 && Gamerscore > 100) altPercent = 50.65
-                                        if (Gamerscore <= 100 && Gamerscore > 50) altPercent = 87.75
-                                        if (Gamerscore <= 50 && Gamerscore > 0) altPercent = 95.30
-                                        if (Gamerscore === 0) altPercent = 99.99
+                                        if (Gamerscore <= 2000 && Gamerscore > 1500) altPercent = Math.trunc(Math.random() * (17 - 14) + 14)
+                                        if (Gamerscore <= 1500 && Gamerscore > 1000) altPercent = Math.trunc(Math.random() * (26 - 23) + 23)
+                                        if (Gamerscore <= 1000 && Gamerscore > 800) altPercent = Math.trunc(Math.random() * (38 - 35) + 35)
+                                        if (Gamerscore <= 800 && Gamerscore > 600) altPercent = Math.trunc(Math.random() * (55 - 52) + 52)
+                                        if (Gamerscore <= 600 && Gamerscore > 325) altPercent = Math.trunc(Math.random() * (70 - 67) + 67)
+                                        if (Gamerscore <= 325 && Gamerscore > 200) altPercent = Math.trunc(Math.random() * (83 - 80) + 80)
+                                        if (Gamerscore <= 200 && Gamerscore > 100) altPercent = Math.trunc(Math.random() * (87 - 84) + 84)
+                                        if (Gamerscore <= 100 && Gamerscore > 50) altPercent = Math.trunc(Math.random() * (91 - 88) + 88)
+                                        if (Gamerscore <= 50 && Gamerscore > 0) altPercent = Math.trunc(Math.random() * (95 - 92) + 92)
+                                        if (Gamerscore === 0) altPercent = Math.trunc(Math.random() * (99.99 - 96) + 96)
                                       const finalEmbed = {
                                           color: 946466,
                                           title: `${Gamertag}`,
@@ -89,8 +93,8 @@ module.exports = {
                                           }, 
                                           timestamp: new Date().toISOString(),
                                           footer: {
-                                            text: `${process.env.FOOTER}`,
-                                            icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+                                            text: `Note: Players on PlayStation may have 0 gamerscore so don't ALWAYS rely on Alt-Detect AI`,
+                                            icon_url: 'https://cdn.discordapp.com/attachments/981774405812224011/1084919697868328960/image_4.png',
                                           },
                                         };
                                         await interaction.editReply({ content: `✅ Operation Successful!`, ephemeral: true });
@@ -113,12 +117,16 @@ module.exports = {
                                         let Bio = settings[4].value
                                         Bio ? Bio = Bio : Bio = 'No Bio.'
                                         let altPercent = 0
-                                        if (Gamerscore <= 800 && Gamerscore > 325) altPercent = 14.76
-                                        if (Gamerscore <= 325 && Gamerscore > 200) altPercent = 36.98
-                                        if (Gamerscore <= 200 && Gamerscore > 100) altPercent = 50.65
-                                        if (Gamerscore <= 100 && Gamerscore > 50) altPercent = 87.75
-                                        if (Gamerscore <= 50 && Gamerscore > 0) altPercent = 95.30
-                                        if (Gamerscore === 0) altPercent = 99.99
+                                        if (Gamerscore <= 2000 && Gamerscore > 1500) altPercent = Math.trunc(Math.random() * (17 - 14) + 14)
+                                        if (Gamerscore <= 1500 && Gamerscore > 1000) altPercent = Math.trunc(Math.random() * (26 - 23) + 23)
+                                        if (Gamerscore <= 1000 && Gamerscore > 800) altPercent = Math.trunc(Math.random() * (38 - 35) + 35)
+                                        if (Gamerscore <= 800 && Gamerscore > 600) altPercent = Math.trunc(Math.random() * (55 - 52) + 52)
+                                        if (Gamerscore <= 600 && Gamerscore > 325) altPercent = Math.trunc(Math.random() * (70 - 67) + 67)
+                                        if (Gamerscore <= 325 && Gamerscore > 200) altPercent = Math.trunc(Math.random() * (83 - 80) + 80)
+                                        if (Gamerscore <= 200 && Gamerscore > 100) altPercent = Math.trunc(Math.random() * (87 - 84) + 84)
+                                        if (Gamerscore <= 100 && Gamerscore > 50) altPercent = Math.trunc(Math.random() * (91 - 88) + 88)
+                                        if (Gamerscore <= 50 && Gamerscore > 0) altPercent = Math.trunc(Math.random() * (95 - 92) + 92)
+                                        if (Gamerscore === 0) altPercent = Math.trunc(Math.random() * (99.99 - 96) + 96)
                                       const finalEmbed = {
                                           color: 946466,
                                           title: `${Gamertag}`,
@@ -128,18 +136,16 @@ module.exports = {
                                           }, 
                                           timestamp: new Date().toISOString(),
                                           footer: {
-                                            text: `${process.env.FOOTER}`,
-                                            icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+                                            text: `Note: Players on PlayStation may have 0 gamerscore so don't ALWAYS rely on Alt-Detect AI`,
+                                            icon_url: 'https://cdn.discordapp.com/attachments/981774405812224011/1084919697868328960/image_4.png',
                                           },
                                         };
                                         await interaction.editReply({ content: `✅ Operation Successful!`, ephemeral: true });
-                                        return await interaction.channel.send({ content: `Result found for **${interaction.user.tag}**!`, embeds: [finalEmbed] }).catch(() => {
-      return
-    })
+                                        return await interaction.channel.send({ content: `Result found for **${interaction.user.tag}**!`, embeds: [finalEmbed] })
                                       })
                                       }
                                 }).catch(async (error) => {
-                                  const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
+                                  const errorChannel = interaction.client.channels.cache.get('1086347050838401074')
                                   await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Lookup Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
                                   console.log(error)
                                     return await interaction.editReply({content: `Invalid Query! I couldn't find that player!`, ephemeral: true})
@@ -178,19 +184,17 @@ module.exports = {
                                           timestamp: new Date().toISOString(),
                                           footer: {
                                             text: `${process.env.FOOTER}`,
-                                            icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+                                            icon_url: 'https://cdn.discordapp.com/attachments/981774405812224011/1084919697868328960/image_4.png',
                                           },
                                         };
                                         await interaction.editReply({ content: `✅ Operation Successful!`, ephemeral: true });
-                                        return await interaction.channel.send({ content: `Result found for **${interaction.user.tag}**!`, embeds: [finalEmbed] }).catch(() => {
-      return
-    })
+                                        return await interaction.channel.send({ content: `Result found for **${interaction.user.tag}**!`, embeds: [finalEmbed] })
                                       }
                         // } else {
                         //     return await interaction.editReply({content: `Sorry! This is a Premium Feature!\n\n**How to get access**\nTo get access to this command you need to subscribe to the Basic Plan or higher!`, ephemeral: true})
                         // }
 	} catch (error) {
-		const errorChannel = interaction.client.channels.cache.get('1060347445722230867')
+		const errorChannel = interaction.client.channels.cache.get('1086347050838401074')
 		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Lookup Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
 		console.log(error)
 	}

@@ -11,16 +11,16 @@ module.exports = {
     const id = await guild.client.channels.fetch(`1060345116000268428`)
     let userData = await userDB.findOne({ userID: guild.ownerId })
     if (!userData) {
-      newUser = await userDB.create({userID: guild.ownerId,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch(() => {
-      return
-    })
+      newUser = await userDB.create({userID: guild.ownerId,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch((error) => {
+                        return console.log(error)
+                      })
       userData = await userDB.findOne({ userID: guild.ownerId })
     }
     let serverData = await serverDB.findOne({ serverID: guild.id })
     if (!serverData) {
-      newServer = await serverDB.create({serverID: guild.id,whitelisted: false,discordBanModule: false,configs: [{banLogs: '0', automod: '0', logsChannel: '0', relayChannel: '0', adminRoleID: '0', moderatorRoleID: '0'}],addCount: 0, realmChatRelay: false, autobanFromDB: false, automod: false, banCommand: [{ permission: ['404'], enabled: true }], kickCommand: [{ permission: ['404'], enabled: true }], statusCommand: [{ permission: ['404'], enabled: true }], playersCommand: [{ permission: ['0'], enabled: true }], editCommand: [{ permission: ['404'], enabled: true }], worldCommand: [{ permission: ['404'], enabled: true }], permissionsCommand: [{ permission: ['404'], enabled: true }], consoleCommand: [{ permission: ['404'], enabled: true }], automodCommand: [{ permission: ['404'], enabled: true }], botCommand: [{ permission: ['404'], enabled: true }],realmID: [{ realmID: '0', name: '0'}], botConnected: false, isOpen: [{ realmID: '0', status: '0'}], realmsBans: [{ realmID: '0', banCount: '0'}], realmsKicks: [{ realmID: '0', kickCount: '0'}],realmOperators: [{ realmID: '0', operators: ['0']}],currentLogic: [{ realmID: '0', logic: '0'}]});newServer.save().catch(() => {
-      return
-    })
+      newServer = await serverDB.create({serverID: guild.id,whitelisted: false,discordBanModule: false,configs: [{banLogs: '0', automod: '0', logsChannel: '0', relayChannel: '0', adminRoleID: '0', moderatorRoleID: '0'}],addCount: 0, realmChatRelay: false, autobanFromDB: false, automod: false, banCommand: [{ permission: ['404'], enabled: true }], kickCommand: [{ permission: ['404'], enabled: true }], statusCommand: [{ permission: ['404'], enabled: true }], playersCommand: [{ permission: ['0'], enabled: true }], editCommand: [{ permission: ['404'], enabled: true }], worldCommand: [{ permission: ['404'], enabled: true }], permissionsCommand: [{ permission: ['404'], enabled: true }], consoleCommand: [{ permission: ['404'], enabled: true }], automodCommand: [{ permission: ['404'], enabled: true }], botCommand: [{ permission: ['404'], enabled: true }],realmID: [{ realmID: '0', name: '0'}], botConnected: false, isOpen: [{ realmID: '0', status: '0'}], realmsBans: [{ realmID: '0', banCount: '0'}], realmsKicks: [{ realmID: '0', kickCount: '0'}],realmOperators: [{ realmID: '0', operators: ['0']}],currentLogic: [{ realmID: '0', logic: '0'}]});newServer.save().catch((error) => {
+                        return console.log(error)
+                      })
       serverData = await serverDB.findOne({ serverID: guild.id })
     }
     if (userData.botBan || serverData.botBan) {
@@ -52,16 +52,12 @@ module.exports = {
         timestamp: new Date().toISOString(),
         footer: {
           text: `${process.env.FOOTER}`,
-          icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+          icon_url: 'https://cdn.discordapp.com/attachments/981774405812224011/1084919697868328960/image_4.png',
         },
       };
       
-      id.send({ embeds: [joinEmbed] }).catch(() => {
-      return
-    })
-      return guild.leave().catch(() => {
-      return
-    })
+      id.send({ embeds: [joinEmbed] })
+      return guild.leave()
     }
     // if (guild.memberCount < 30 && !userData.isAdmin && !serverData.whitelisted) {
     //   if (guild.systemChannel) guild.systemChannel.send(`Sorry! For security reasons your server must have over 30 members to use Realms+!`)
@@ -93,7 +89,7 @@ module.exports = {
     //     timestamp: new Date().toISOString(),
     //     footer: {
     //       text: `${process.env.FOOTER}`,
-    //       icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+    //       icon_url: 'https://cdn.discordapp.com/attachments/981774405812224011/1084919697868328960/image_4.png',
     //     },
     //   };
       
@@ -107,13 +103,11 @@ module.exports = {
       timestamp: new Date().toISOString(),
       footer: {
         text: `${process.env.FOOTER}`,
-        icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+        icon_url: 'https://cdn.discordapp.com/attachments/981774405812224011/1084919697868328960/image_4.png',
       },
     };
     
-    if (guild.systemChannel) guild.systemChannel.send({ embeds: [joinEmbed] }).catch(() => {
-      return
-    })
+    if (guild.systemChannel) guild.systemChannel.send({ embeds: [joinEmbed] })
     const joinLogEmbed = {
       color: 946466,
       title: 'Joined a new server!',
@@ -121,14 +115,14 @@ module.exports = {
       timestamp: new Date().toISOString(),
       footer: {
         text: `${process.env.FOOTER}`,
-        icon_url: 'https://cdn.discordapp.com/attachments/1053080642386153583/1060304303518142544/rdb.png',
+        icon_url: 'https://cdn.discordapp.com/attachments/981774405812224011/1084919697868328960/image_4.png',
       },
     };
     id.send({ embeds: [joinLogEmbed] }).catch((error) => {
       return
     })
   } catch (error) {
-    const errorChannel = await message.client.channels.fetch('1060347445722230867')
+    const errorChannel = await message.client.channels.fetch('1086347050838401074')
     await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **Can't get Guild Name**\nUser Who Found It: **${message.author.tag}**・**${message.author.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **guildCreate event has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
     console.log(error)
   }
