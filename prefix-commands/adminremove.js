@@ -3,17 +3,25 @@ require('dotenv').config();
 const userDB = require('../models/userDB');
 
 exports.run = async (message, args) => {
-    if (args.toString().replaceAll(' ', '') === '') return message.reply(`\`!adminremove\` is a command that when executed on an admin, removes their Realms+ Admin\n\nSyntax: !adminremove <user-id>.`)
+    if (args.toString().replaceAll(' ', '') === '') 
+      return message.reply(`\`!adminremove\` is a command that when executed on an admin, removes their Realms+ Admin\n\nSyntax: !adminremove <user-id>.`);
+    
     const user = await message.client.users.fetch(`${args.toString().replaceAll(' ', '')}`);
-    if (!user) return message.reply(`<:error:1086371516565950474> **IdError:** User not found!`)
+    if (!user) 
+      return message.reply(`<:error:1086371516565950474> **IdError:** User not found!`);
+
     let userData = await userDB.findOne({ userID: user.id })
     if (userData === null) {
       newUser = await createUserEntry(user.id).catch(() => {});
       userData = await userDB.findOne({ userID: user.id })
     }
-    if (!userData.isAdmin) return message.reply(`This user is not an admin!`)
-    if (message.author.id !== '943653593548984341' && message.author.id !== '659742263399940147') return
-    const id = message.client.channels.cache.get(`1060345095347523644`)
+
+    if (!userData.isAdmin) 
+      return message.reply(`This user is not an admin!`);
+    if (message.author.id !== '943653593548984341' && message.author.id !== '659742263399940147') 
+      return;
+    
+    const id = message.client.channels.cache.get(`1060345095347523644`);
     const logEmbed = {
       color: 946466,
       title: 'Someone was just lost their Realms+ Admin.',
