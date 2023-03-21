@@ -1,19 +1,30 @@
-const { ActivityType, SlashCommandBuilder, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle, ComponentType, ButtonBuilder, ButtonStyle } = require('discord.js');
+const createServerEntry = require("../utils/createServerEntry");
+const { authenticate } = require('@xboxreplay/xboxlive-auth');
+const reportDBDiscord = require('../models/reportDBDiscord');
+const createUserEntry = require("../utils/createUserEntry");
+const realmProfileDB = require('../models/realmProfileDB');
+const XboxLiveAPI = require('@xboxreplay/xboxlive-api');
+const discordDB = require('../models/discordDB');
+const hackerDB = require('../models/hackerDB');
+const reportDB = require('../models/reportDB');
+const serverDB = require('../models/serverDB');
+const userDB = require('../models/userDB');
+const mongoose = require('mongoose');
 const crypto = require("crypto");
-const userDB = require('../models/userDB')
-const serverDB = require('../models/serverDB')
-const mongoose = require('mongoose')
-const hackerDB = require('../models/hackerDB')
-const discordDB = require('../models/discordDB')
-const realmProfileDB = require('../models/realmProfileDB')
-const reportDB = require('../models/reportDB')
-const reportDBDiscord = require('../models/reportDBDiscord')
+require('dotenv').config();
+
+const { 
+  SlashCommandBuilder,
+  ModalBuilder,
+  ActionRowBuilder,
+  TextInputBuilder,
+  TextInputStyle 
+} = require('discord.js');
+
 const profileIDGenerator = crypto.randomBytes(7).toString('hex')
 const dbid = crypto.randomBytes(15).toString('hex')
 const discordDbidGen = crypto.randomBytes(20).toString('hex')
-require('dotenv').config()
-const { authenticate } = require('@xboxreplay/xboxlive-auth')
-const XboxLiveAPI = require('@xboxreplay/xboxlive-api')
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('database')
@@ -70,17 +81,13 @@ module.exports = {
             const id = interaction.client.channels.cache.get(`1060345095347523644`)
             let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
-              newUser = await userDB.create({userID: interaction.user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch(error => {
-              return console.log(error)
-            })
-            userData = await userDB.findOne({ userID: interaction.user.id })
+              newUser = await createUserEntry(interaction.user.id);
+              userData = await userDB.findOne({ userID: interaction.user.id });
             }
             let serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             if (!serverData) {
-              newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,configs: [{banLogs: '0', automod: '0', logsChannel: '0', relayChannel: '0', adminRoleID: '0', moderatorRoleID: '0'}],addCount: 0, realmChatRelay: false, autobanFromDB: false, automod: false, banCommand: [{ permission: ['404'], enabled: true }], kickCommand: [{ permission: ['404'], enabled: true }], statusCommand: [{ permission: ['404'], enabled: true }], playersCommand: [{ permission: ['0'], enabled: true }], editCommand: [{ permission: ['404'], enabled: true }], worldCommand: [{ permission: ['404'], enabled: true }], permissionsCommand: [{ permission: ['404'], enabled: true }], consoleCommand: [{ permission: ['404'], enabled: true }], automodCommand: [{ permission: ['404'], enabled: true }], botCommand: [{ permission: ['404'], enabled: true }],realmID: [{ realmID: '0', name: '0'}], botConnected: false, isOpen: [{ realmID: '0', status: '0'}], realmsBans: [{ realmID: '0', banCount: '0'}], realmsKicks: [{ realmID: '0', kickCount: '0'}],realmOperators: [{ realmID: '0', operators: ['0']}],currentLogic: [{ realmID: '0', logic: '0'}]});newServer.save().catch(error => {
-              return console.log(error)
-            })
-            serverData = await serverDB.findOne({ serverID: interaction.guild.id })
+              newServer = await createServerEntry(interaction.guild.id);
+              serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             }
             if (interaction.options.getSubcommand() === 'add') {
                 // return await interaction.reply(`This command is undergoing development! Try again later!`)

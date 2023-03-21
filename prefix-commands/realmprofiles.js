@@ -1,12 +1,11 @@
+const createUserEntry = require("../utils/createUserEntry");
 require('dotenv').config()
 const userDB = require('../models/userDB')
 const realmProfileDB = require('../models/realmProfileDB')
 exports.run = async (message, args) => {
     let userData = await userDB.findOne({ userID: message.author.id })
     if (userData === null) {
-      newUser = await userDB.create({userID: message.author.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false});newUser.save().catch((error) => {
-                        return console.log(error)
-                      }).catch()
+      newUser = await createUserEntry(message.author.id).catch(() => {});
       userData = await userDB.findOne({ userID: message.author.id })
     }
     if (!userData.isAdmin) return

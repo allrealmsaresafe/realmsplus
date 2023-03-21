@@ -1,10 +1,9 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
+const { REST } = require('@discordjs/rest');
+require('dotenv').config();
 
-require('dotenv').config()
-const token = process.env.TOKEN;
 const clientId = process.env.CLIENTID;
+const token = process.env.TOKEN;
     
 const rest = new REST({ version: '9' }).setToken(token);
 rest.get(Routes.applicationCommands(clientId))

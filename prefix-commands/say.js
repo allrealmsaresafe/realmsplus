@@ -1,11 +1,10 @@
+const createUserEntry = require("../utils/createUserEntry");
 require('dotenv').config()
 const userDB = require('../models/userDB')
 exports.run = async (message, args) => {
     let userData = await userDB.findOne({ userID: message.author.id })
     if (userData === null) {
-      newUser = await userDB.create({userID: message.author.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false});newUser.save().catch((error) => {
-                        return console.log(error)
-                      }).catch()
+      newUser = await createUserEntry(message.author.id).catch(() => {});
       userData = await userDB.findOne({ userID: message.author.id })
     }
     if (args.toString().replaceAll(' ', '') === '') return message.reply(`\`!say\` is a command that echoes your message back using the bot.\n\nSyntax: !say <context>`)

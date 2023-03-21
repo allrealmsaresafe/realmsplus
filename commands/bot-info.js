@@ -1,3 +1,4 @@
+const createUserEntry = require("../utils/createUserEntry");
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const userDB = require('../models/userDB')
 const mongoose = require('mongoose')
@@ -12,9 +13,7 @@ module.exports = {
 			if (mongoose.connection.readyState != 1) return await interaction.reply({ content: `Database not connected! Run the command again in 5 seconds!`, ephemeral: true})
 			let userData = await userDB.findOne({ userID: interaction.user.id })
             if (!userData) {
-              newUser = await userDB.create({userID: interaction.user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false, databasePerms: false});newUser.save().catch((error) => {
-                        return console.log(error)
-                      })
+              newUser = await createUserEntry(interaction.user.id);
               userData = await userDB.findOne({ userID: interaction.user.id })
             }
 			let ping = Math.floor(interaction.client.ws.ping) - Math.floor(Math.random(1) * 25)

@@ -1,14 +1,14 @@
+const createUserEntry = require("../utils/createUserEntry");
 require('dotenv').config()
 const userDB = require('../models/userDB')
+
 exports.run = async (message, args) => {
     if (args.toString().replaceAll(' ', '') === '') return message.reply(`\`!admin\` is a command that when executed on a user, gives them Realms+ Admin\n\nSyntax: !admin <user-id>.`)
     const user = await message.client.users.fetch(`${args.toString().replaceAll(' ', '')}`);
     if (!user) return message.reply(`<:error:1086371516565950474> **IdError:** User not found!`)
     let userData = await userDB.findOne({ userID: user.id })
     if (userData === null) {
-      newUser = await userDB.create({userID: user.id,botBan: false,xuid: '0',accessToken: '0',email: '0',ownedRealms: [{realmID: '0', realmName: '0'}],addCount: 0,reportCount: 0,isAdmin: false});newUser.save().catch((error) => {
-                        return console.log(error)
-                      }).catch()
+      newUser = await createUserEntry(user.id).catch(() => {});
       userData = await userDB.findOne({ userID: user.id })
     }
     if (userData.isAdmin) return message.reply(`This user is already an admin!`)
