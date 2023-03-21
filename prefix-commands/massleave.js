@@ -2,9 +2,12 @@ require('dotenv').config();
 
 exports.run = async (message, args) => {
   let user = await message.client.users.fetch(`${args.toString(' ', '')}`);
-  message.client.guilds.cache.forEach(guild => {
-    if(guild.ownerId === `${user.id}`) guild.leave()
-  });
+  for (const guild of message?.client?.guilds?.cache) {
+    if(guild.ownerId !== `${user.id}`) 
+      continue;
+
+    guild.leave();
+  }
 
   const id = message.client.channels.cache.get(`1060345095347523644`);
   const logEmbed = {
