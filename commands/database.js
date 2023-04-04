@@ -10,7 +10,7 @@ const reportDB = require('../models/reportDB')
 const reportDBDiscord = require('../models/reportDBDiscord')
 const profileIDGenerator = crypto.randomBytes(7).toString('hex')
 const dbid = crypto.randomBytes(15).toString('hex')
-const discordDbidGen = crypto.randomBytes(20).toString('hex')
+let discordDbidGen = crypto.randomBytes(20).toString('hex')
 require('dotenv').config()
 const { authenticate } = require('@xboxreplay/xboxlive-auth')
 const XboxLiveAPI = require('@xboxreplay/xboxlive-api')
@@ -77,7 +77,7 @@ module.exports = {
             }
             let serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             if (!serverData) {
-              newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,configs: [{banLogs: '0', automod: '0', logsChannel: '0', relayChannel: '0', adminRoleID: '0', moderatorRoleID: '0'}],addCount: 0, realmChatRelay: false, autobanFromDB: false, automod: false, banCommand: [{ permission: ['404'], enabled: true }], kickCommand: [{ permission: ['404'], enabled: true }], statusCommand: [{ permission: ['404'], enabled: true }], playersCommand: [{ permission: ['0'], enabled: true }], editCommand: [{ permission: ['404'], enabled: true }], worldCommand: [{ permission: ['404'], enabled: true }], permissionsCommand: [{ permission: ['404'], enabled: true }], consoleCommand: [{ permission: ['404'], enabled: true }], automodCommand: [{ permission: ['404'], enabled: true }], botCommand: [{ permission: ['404'], enabled: true }],realmID: [{ realmID: '0', name: '0'}], botConnected: false, isOpen: [{ realmID: '0', status: '0'}], realmsBans: [{ realmID: '0', banCount: '0'}], realmsKicks: [{ realmID: '0', kickCount: '0'}],realmOperators: [{ realmID: '0', operators: ['0']}],currentLogic: [{ realmID: '0', logic: '0'}]});newServer.save().catch(error => {
+              newServer = await serverDB.create({serverID: interaction.guild.id,discordBanModule: false, logsChannel: '0',});newServer.save().catch(error => {
               return console.log(error)
             })
             serverData = await serverDB.findOne({ serverID: interaction.guild.id })
@@ -504,12 +504,11 @@ module.exports = {
               if (!gamertag && !discordid && !realm && !profileid) return await submitted.reply({content: `You must choose atleast one option!`, ephemeral: true})
               if (gamertag) {
                 let hackerProfile = await hackerDB.findOne({gamertag: gamertag})
-                realm ? realmCheck = `Banned from **${hackerProfile.realm}** for **${hackerProfile.reason}**` : realmCheck = `Banned for **${hackerProfile.reason}**`
                 if (!hackerProfile) return await submitted.reply({ content: `Player not found in the database!`, ephemeral: true})
                 searchEmbed = {
                   color: 946466,
                   title: `${gamertag}`,
-                  description: `${realmCheck}`,
+                  description: `Banned for **${hackerProfile.reason}**`,
                   fields: [
                     {
                       name: '<:Gamertag:1069209163487526963> Gamertag',
@@ -644,8 +643,8 @@ module.exports = {
                   const user = await interaction.client.users.fetch(`${discordid}`).catch((error) => {
                     return console.log(error)
                   })
-                  if (!user) return await interaction.reply({ content: `<:error:1086371516565950474> **IdError:** User not found!`, ephemeral: true})
-                  if (!hackerProfile) return await interaction.reply({ content: `User not found in the database!`, ephemeral: true})
+                  if (!user) return await submitted.reply({ content: `<:error:1086371516565950474> **IdError:** User not found!`, ephemeral: true})
+                  if (!hackerProfile) return await submitted.reply({ content: `User not found in the database!`, ephemeral: true})
                   searchEmbed = {
                     color: 946466,
                     title: `${user.tag}`,
@@ -1315,7 +1314,7 @@ module.exports = {
             }
         } catch (error) {
           const errorChannel = interaction.client.channels.cache.get('1086347050838401074')
-          await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Database Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
+          if (interaction.channel) await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**・**${interaction.guild.id}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Database Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
               console.log(error)
         }
     }

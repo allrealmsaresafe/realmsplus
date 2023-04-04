@@ -92,7 +92,7 @@ module.exports = {
                 });
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1086347050838401074')
-		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Help Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
+		if (interaction.channel) await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**・**${interaction.guild.id}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Help Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
 		console.log(error)
 	}
 	},

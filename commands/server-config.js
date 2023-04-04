@@ -4,12 +4,12 @@ const serverDB = require('../models/serverDB')
 const mongoose = require('mongoose')
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('server-config')
-		.setDescription('Allows you to configure your server.')
+		.setName('setup')
+		.setDescription('Setup your server.')
           .addSubcommand(subcommand =>
             subcommand
                 .setName('ban-module')
-                .setDescription('Allows you to configure the Discord Ban Module.')
+                .setDescription('Allows you to set the Discord Ban Module.')
                 .addStringOption(option => option.setName('toggle').setDescription('Toggle the Discord Ban Module.').addChoices(
                   { name: 'Enable', value: 'on' },
                   { name: 'Disable', value: 'off' },
@@ -17,8 +17,12 @@ module.exports = {
                 .addSubcommand(subcommand =>
                   subcommand
                       .setName('logs-channel')
-                      .setDescription('Allows you to configure the Logs Channel.')
-                      .addChannelOption(option => option.setName('channel').setDescription('Set the Logs Channel.').addChannelTypes(ChannelType.GuildText))),
+                      .setDescription('Allows you to set your server\'s Logs Channel.')
+                      .addChannelOption(option => option.setName('channel').setDescription('Set the Logs Channel.').addChannelTypes(ChannelType.GuildText)))
+                      .addSubcommand(subcommand =>
+                        subcommand
+                            .setName('notifications')
+                            .setDescription('Allows you to set your server\'s notifications.')),
 	async execute(interaction) {
 		try {
 			if (mongoose.connection.readyState != 1) return await interaction.reply({ content: `Database not connected! Run the command again in 5 seconds!`, ephemeral: true})
@@ -31,7 +35,7 @@ module.exports = {
             }
             let serverData = await serverDB.findOne({ serverID: interaction.guild.id })
             if (!serverData) {
-              newServer = await serverDB.create({serverID: interaction.guild.id,whitelisted: false,discordBanModule: false,configs: [{banLogs: '0', automod: '0', logsChannel: '0', relayChannel: '0', adminRoleID: '0', moderatorRoleID: '0'}],addCount: 0, realmChatRelay: false, autobanFromDB: false, automod: false, banCommand: [{ permission: ['404'], enabled: true }], kickCommand: [{ permission: ['404'], enabled: true }], statusCommand: [{ permission: ['404'], enabled: true }], playersCommand: [{ permission: ['0'], enabled: true }], editCommand: [{ permission: ['404'], enabled: true }], worldCommand: [{ permission: ['404'], enabled: true }], permissionsCommand: [{ permission: ['404'], enabled: true }], consoleCommand: [{ permission: ['404'], enabled: true }], automodCommand: [{ permission: ['404'], enabled: true }], botCommand: [{ permission: ['404'], enabled: true }],realmID: [{ realmID: '0', name: '0'}], botConnected: false, isOpen: [{ realmID: '0', status: '0'}], realmsBans: [{ realmID: '0', banCount: '0'}], realmsKicks: [{ realmID: '0', kickCount: '0'}],realmOperators: [{ realmID: '0', operators: ['0']}],currentLogic: [{ realmID: '0', logic: '0'}]});newServer.save().catch((error) => {
+              newServer = await serverDB.create({serverID: interaction.guild.id,discordBanModule: false, logsChannel: '0',});newServer.save().catch((error) => {
                         return console.log(error)
                       })
               serverData = await serverDB.findOne({ serverID: interaction.guild.id })
@@ -93,7 +97,7 @@ module.exports = {
           return interaction.reply({ embeds: [infoEmbed], ephemeral: true });
 	} catch (error) {
 		const errorChannel = interaction.client.channels.cache.get('1086347050838401074')
-		await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Module Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
+		if (interaction.channel) await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**・**${interaction.guild.id}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Module Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
 		console.log(error)
 	}
 	},

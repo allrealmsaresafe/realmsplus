@@ -70,26 +70,9 @@ client.on(Events.InteractionCreate, async interaction => {
 		await command.execute(interaction);
 	} catch (error) {
 		const errorChannel = client.channels.cache.get('1086347050838401074')
-		errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Slash Command execute error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
+		if (interaction.channel) errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**・**${interaction.guild.id}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Slash Command execute error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
 		console.log(error)
 	}
 }
-});
-const activities = ['${client.guilds.cache.size} servers!', 'join the ARAS movement', 'Cheater/crasher DataBase'];
-
-client.on('ready', () => {
-  const updateDelay = 5; // in seconds
-  let currentIndex = 0;
-
-  setInterval(() => {
-    const activity = activities[currentIndex];
-    client.user.setActivity(activity);
-
-    // update currentIndex
-    // if it's the last one, get back to 0
-    currentIndex = currentIndex >= activities.length - 1 
-      ? 0
-      : currentIndex + 1;
-  }, updateDelay * 1000);
 });
 client.login(token);

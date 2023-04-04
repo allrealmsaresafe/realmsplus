@@ -4,7 +4,7 @@ module.exports = {
 	name: Events.ClientReady,
 	once: true,
 	async execute(client) {
-		const activities = [`${client.guilds.cache.size} servers!`, `#ARAS`, `Find hackers in your realm`, `#allrealmsaresafe`, `Best MCBE Database`]
+		const activities = [`${client.guilds.cache.size} servers!`, `#ARAS`, `Find hackers in your realm`, `#allrealmsaresafe`, `Best MCBE Database`, `Realms+ v2.0`]
 		const updateDelay = 60
 		let currentIndex = 0
 
