@@ -41,6 +41,7 @@ const authflow = new Authflow(userIdentifier, cacheDir, options, (res) => {
   interaction.reply({content: 'Check your DMs and follow the instructions to link your account!', ephemeral: true})
 })
 const xbl = await authflow.getXboxToken('https://pocket.realms.minecraft.net/');
+
 const api = RealmAPI.from(authflow, 'bedrock')
 const realmsEmbed = {
 	color: 946466,
@@ -54,7 +55,7 @@ const realmsEmbed = {
 	};
 return interaction.user.send({embeds: [realmsEmbed]})
 	} catch (error) {
-		const errorChannel = interaction.client.channels.cache.get('1086347050838401074')
+		const errorChannel = interaction.client.channels.cache.get(`${process.env.ERROR_CHANNEL}`)
 		if (interaction.channel) await errorChannel.send(`There has been an error! Here is the information sorrounding it.\n\nServer Found In: **${interaction.guild.name}**・**${interaction.guild.id}**\nUser Who Found It: **${interaction.user.tag}**・**${interaction.user.id}**\nFound Time: <t:${Math.trunc(Date.now() / 1000)}:R>\nThe Reason: **Bot Information Command has an error**\nError: **${error.stack}**\n\`\`\` \`\`\``)
 		console.log(error)
 	}
